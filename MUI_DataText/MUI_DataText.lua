@@ -16,7 +16,6 @@ namespace.dataTextLabels = {
     ["inventory"]         = "Inventory",
     ["memory"]            = "Memory",
     ["performance"]       = "Performance",
-    ["specialization"]    = "Specialization",
     ["none"]              = "None";
     ["disabled"]          = "Disabled"
 };
@@ -58,7 +57,6 @@ db:AddToDefaults("profile.datatext", {
         "inventory";
         "currency";
         "performance";
-
     };
 });
 

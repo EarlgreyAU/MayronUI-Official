@@ -14,6 +14,5 @@ Components\Inventory.lua
 Components\Memory.lua
 Components\None.lua
 Components\Performance.lua
-Components\Specialization.lua
 
 MUI_DataText.config.lua
