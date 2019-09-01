@@ -1,10 +1,10 @@
-## Interface: 80200
+## Interface: 11302
 ## Title: |cff00ccffMUI|r Core
 ## SavedVariables: MayronUIdb
 ## OptionalDeps: ShadowedUnitFrames, Bartender4
-## Version: 6.0.5.10
+## Version: 1.0
 
-## X-InterfaceName: MayronUI Gen6
+## X-InterfaceName: MayronUI Classic
 
 ## Libraries:
 Libs\LibStub.lua
