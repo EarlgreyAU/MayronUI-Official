@@ -609,8 +609,6 @@ function C_CoreModule:OnInitialize()
         end
     end
 
-    namespace:SetUpOrderHallBar();
-
     if (_G.IsAddOnLoaded("Recount")) then
         if (db.global.reanchorRecount) then
             _G.Recount_MainWindow:ClearAllPoints();
@@ -629,7 +627,7 @@ function C_CoreModule:OnInitialize()
     end
 
     tk:Print(L["Welcome back"], _G.UnitName("player").."!");
-    collectgarbage("collect");
+    _G.collectgarbage("collect");
     DisableAddOn("MUI_Setup"); -- disable for next time
 end
 

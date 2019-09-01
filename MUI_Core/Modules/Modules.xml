@@ -6,10 +6,9 @@
     <Script file="BottomUI\ResourceBars\ExperienceBar.lua"/>
     <Script file="BottomUI\ResourceBars\ReputationBar.lua"/>
     <Script file="BottomUI\ActionBarPanel.lua"/>
-    <Script file="ObjectiveTracker.lua"/>
+    <Script file="QuestTracker.lua"/>
     <Script file="SideBar.lua"/>
     <Script file="AFKDisplay.lua"/>
-    <Script file="OrderHallCommandBar.lua"/>
     <Script file="MovableFrames.lua"/>
     <Script file="Tutorial.lua"/>
     <Script file="BagnonChanges.lua"/>

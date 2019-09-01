@@ -241,34 +241,6 @@ function C_MiniMapModule:OnInitialized(data)
 		end
 	end);
 
-	-- Calendar Button:
-	local eventBtn = CreateFrame("Button", nil, Minimap);
-    eventBtn:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, -18);
-    eventBtn:SetSize(100, 20);
-    eventBtn:SetNormalFontObject("GameFontNormal");
-    eventBtn:SetHighlightFontObject("GameFontHighlight");
-    eventBtn:Hide();
-
-    eventBtn:SetScript("OnClick", function()
-        if (not _G["CalendarFrame"]) then
-            LoadAddOn("Blizzard_Calendar");
-        end
-        _G.Calendar_Toggle();
-	end)
-
-    eventBtn:RegisterEvent('PLAYER_ENTERING_WORLD');
-	eventBtn:SetScript('OnEvent',function(self)
-		local numPendingInvites = _G.C_Calendar.GetNumPendingInvites();
-
-		if (numPendingInvites > 0) then
-			self:SetText(string.format("%s (%i)", L["New Event!"], numPendingInvites));
-            self:Show();
-		else
-			self:SetText("");
-            self:Hide();
-		end
-	end);
-
 	-- Drop down List:
 	local menuList = {
 		{	text = L["Customer Support"],

@@ -12,11 +12,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -24,10 +24,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_inventory - items"] = {
 					["Colors"] = {
@@ -37,11 +43,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -49,10 +55,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_StanceBar"] = {
 					["Colors"] = {
@@ -62,11 +74,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -74,10 +86,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_guildbank - bags"] = {
 					["Colors"] = {
@@ -87,11 +105,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -99,10 +117,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_Vehicle"] = {
 					["Colors"] = {
@@ -112,11 +136,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -124,10 +148,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_1"] = {
 					["Colors"] = {
@@ -137,11 +167,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -149,10 +179,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_3"] = {
 					["Colors"] = {
@@ -162,11 +198,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -174,10 +210,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_guildbank - items"] = {
 					["Colors"] = {
@@ -187,11 +229,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -199,10 +241,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_bank - items"] = {
 					["Colors"] = {
@@ -212,11 +260,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -224,10 +272,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_4"] = {
 					["Colors"] = {
@@ -237,11 +291,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -249,10 +303,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_7"] = {
 					["Colors"] = {
@@ -262,11 +322,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -274,10 +334,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_voidstorage - items"] = {
 					["Colors"] = {
@@ -287,11 +353,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -299,10 +365,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_9"] = {
 					["Colors"] = {
@@ -312,11 +384,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -324,10 +396,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_inventory - bags"] = {
 					["Colors"] = {
@@ -337,11 +415,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -349,10 +427,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4"] = {
 					["Colors"] = {
@@ -362,11 +446,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -374,10 +458,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_10"] = {
 					["Colors"] = {
@@ -387,11 +477,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -399,10 +489,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_8"] = {
 					["Colors"] = {
@@ -412,11 +508,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -424,10 +520,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bartender4_PetBar"] = {
 					["Colors"] = {
@@ -437,11 +539,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -449,10 +551,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["Bagnon_voidstorage - bags"] = {
 					["Colors"] = {
@@ -462,11 +570,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -474,10 +582,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["AuraFrames_PlayerDebuffs"] = {
 					["Colors"] = {
@@ -512,11 +626,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -524,10 +638,16 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
+					["Inherit"] = false,
 				},
 				["AuraFrames"] = {
 					["Colors"] = {
@@ -587,11 +707,11 @@ setup.import["Masque"] = function()
 							0.219607843137255, -- [3]
 							1, -- [4]
 						},
-						["Checked"] = {
-							0, -- [1]
-							0, -- [2]
-							0, -- [3]
-							0, -- [4]
+						["Gloss"] = {
+							1, -- [1]
+							1, -- [2]
+							1, -- [3]
+							0.278550624847412, -- [4]
 						},
 						["Backdrop"] = {
 							0, -- [1]
@@ -599,10 +719,15 @@ setup.import["Masque"] = function()
 							0, -- [3]
 							0.0600000023841858, -- [4]
 						},
+						["Checked"] = {
+							0, -- [1]
+							0, -- [2]
+							0, -- [3]
+							0, -- [4]
+						},
 					},
 					["SkinID"] = "Caith",
 					["Gloss"] = 0.2,
-					["Backdrop"] = true,
 				},
 			},
 		},
