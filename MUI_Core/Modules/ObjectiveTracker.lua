@@ -13,9 +13,9 @@ MayronUI:Hook("SideBarModule", "OnInitialize", function(sideBarModule)
     MayronUI:ImportModule("ObjectiveTrackerModule"):Initialize(sideBarModule);
 end);
 
-local ObjectiveTrackerFrame, IsInInstance, ObjectiveTracker_Collapse, ObjectiveTracker_Update,
+local QuestWatchFrame, IsInInstance, ObjectiveTracker_Collapse, ObjectiveTracker_Update,
 ObjectiveTracker_Expand, UIParent, hooksecurefunc, ipairs =
-    _G.ObjectiveTrackerFrame, _G.IsInInstance, _G.ObjectiveTracker_Collapse, _G.ObjectiveTracker_Update,
+    _G.QuestWatchFrame, _G.IsInInstance, _G.ObjectiveTracker_Collapse, _G.ObjectiveTracker_Update,
     _G.ObjectiveTracker_Expand, _G.UIParent, _G.hooksecurefunc, _G.ipairs;
 
 local function UpdateTextColor(block)
@@ -69,12 +69,12 @@ function C_ObjectiveTracker:OnInitialize(data, sideBarModule)
                 local inInstance = IsInInstance();
 
                 if (inInstance) then
-                    if (not ObjectiveTrackerFrame.collapsed) then
+                    if (not QuestWatchFrame.collapsed) then
                         ObjectiveTracker_Collapse();
                         data.previouslyCollapsed = true;
                     end
                 else
-                    if (ObjectiveTrackerFrame.collapsed and data.previouslyCollapsed) then
+                    if (QuestWatchFrame.collapsed and data.previouslyCollapsed) then
                         ObjectiveTracker_Expand();
                         ObjectiveTracker_Update();
                     end
@@ -112,74 +112,13 @@ function C_ObjectiveTracker:OnEnable(data)
         data.objectiveContainer = _G.CreateFrame("Frame", nil, UIParent);
 
         -- blizzard objective tracker frame global variable
-        ObjectiveTrackerFrame:SetClampedToScreen(false);
-        ObjectiveTrackerFrame:SetParent(data.objectiveContainer);
-        ObjectiveTrackerFrame:SetAllPoints(true);
+        QuestWatchFrame:SetClampedToScreen(false);
+        QuestWatchFrame:SetParent(data.objectiveContainer);
+        QuestWatchFrame:SetAllPoints(true);
 
-        ObjectiveTrackerFrame.ClearAllPoints = tk.Constants.DUMMY_FUNC;
-        ObjectiveTrackerFrame.SetParent = tk.Constants.DUMMY_FUNC;
-        ObjectiveTrackerFrame.SetPoint = tk.Constants.DUMMY_FUNC;
-        ObjectiveTrackerFrame.SetAllPoints = tk.Constants.DUMMY_FUNC;
+        QuestWatchFrame.ClearAllPoints = tk.Constants.DUMMY_FUNC;
+        QuestWatchFrame.SetParent = tk.Constants.DUMMY_FUNC;
+        QuestWatchFrame.SetPoint = tk.Constants.DUMMY_FUNC;
+        QuestWatchFrame.SetAllPoints = tk.Constants.DUMMY_FUNC;
     end
-
-    tk:ApplyThemeColor(ObjectiveTrackerFrame.HeaderMenu.Title);
-
-    _G.ScenarioStageBlock.NormalBG:Hide();
-    _G.ScenarioStageBlock:SetHeight(70);
-
-    local box = gui:CreateDialogBox(tk.Constants.AddOnStyle, _G.ScenarioStageBlock, "LOW");
-    box:SetPoint("TOPLEFT", 5, -5);
-    box:SetPoint("BOTTOMRIGHT", -5, 5);
-    box:SetFrameStrata("BACKGROUND");
-
-    hooksecurefunc("ObjectiveTracker_Initialize", function()
-        for _, module in ipairs(ObjectiveTrackerFrame.MODULES_UI_ORDER) do
-            module.Header.Background:Hide();
-            tk:ApplyThemeColor(module.Header.Text);
-        end
-    end);
-
-    local minButton = ObjectiveTrackerFrame.HeaderMenu.MinimizeButton;
-    local upButtonTexture = tk:GetAssetFilePath("Textures\\DialogBox\\UpButton");
-    local downButtonTexture = tk:GetAssetFilePath("Textures\\DialogBox\\DownButton");
-
-    tk:ApplyThemeColor(minButton);
-
-    minButton:SetSize(24, 20);
-    minButton:GetNormalTexture():SetTexCoord(0, 1, 0, 1);
-    minButton:GetPushedTexture():SetTexCoord(0, 1, 0, 1);
-    minButton:GetHighlightTexture():SetTexCoord(0, 1, 0, 1);
-
-    minButton:GetNormalTexture().SetTexCoord = tk.Constants.DUMMY_FUNC;
-    minButton:GetPushedTexture().SetTexCoord = tk.Constants.DUMMY_FUNC;
-    minButton:GetHighlightTexture().SetTexCoord = tk.Constants.DUMMY_FUNC;
-
-    minButton:GetNormalTexture().SetRotation = tk.Constants.DUMMY_FUNC;
-    minButton:GetPushedTexture().SetRotation = tk.Constants.DUMMY_FUNC;
-    minButton:GetHighlightTexture().SetRotation = tk.Constants.DUMMY_FUNC;
-
-    -- because "ObjectiveTracker_MinimizeButton_OnClick" did not work (weird)
-    hooksecurefunc("ObjectiveTracker_Update", function()
-        if (ObjectiveTrackerFrame.collapsed) then
-            minButton:SetNormalTexture(downButtonTexture, "BLEND");
-            minButton:SetPushedTexture(downButtonTexture, "BLEND");
-            minButton:SetHighlightTexture(downButtonTexture, "ADD");
-        else
-            minButton:SetNormalTexture(upButtonTexture, "BLEND");
-            minButton:SetPushedTexture(upButtonTexture, "BLEND");
-            minButton:SetHighlightTexture(upButtonTexture, "ADD");
-        end
-    end);
-
-    _G.hooksecurefunc(_G.QUEST_TRACKER_MODULE, "Update", function()
-        local block = _G.ObjectiveTrackerBlocksFrame.QuestHeader.module.firstBlock;
-        while (block) do
-            UpdateTextColor(block);
-            block = block.nextBlock;
-        end
-    end);
-
-    hooksecurefunc(_G.DEFAULT_OBJECTIVE_TRACKER_MODULE, "OnBlockHeaderLeave", function(self, block)
-        UpdateTextColor(block);
-    end);
 end

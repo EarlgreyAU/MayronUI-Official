@@ -561,12 +561,13 @@ do
             end
 
             -- Get Player Level + Spec and update text:
-            local specType;
-            if (GetSpecialization()) then
-                specType = (select(2, GetSpecializationInfo(GetSpecialization()))).." ";
-            else
-                specType = tk.Strings.Empty;
-            end
+            local specType = tk.Strings.Empty;
+
+            -- TODO: Classic does not support GetSpecialization()
+            -- if (GetSpecialization()) then
+            --     specType = (select(2, GetSpecializationInfo(GetSpecialization()))).." ";
+            -- else
+            -- end
 
             local name = tk.Strings:Concat(UnitPVPName("player"), " - ",
                 GetRealmName(), "\nLevel ", UnitLevel("player"), ", ",

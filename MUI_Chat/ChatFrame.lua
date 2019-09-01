@@ -255,17 +255,6 @@ end
 
 function C_ChatFrame.Static:SetUpSideBarIcons(chatModuleSettings, muiChatFrame)
 	_G.ChatFrameChannelButton:DisableDrawLayer("ARTWORK");
-	_G.ChatFrameToggleVoiceDeafenButton:DisableDrawLayer("ARTWORK");
-	_G.ChatFrameToggleVoiceMuteButton:DisableDrawLayer("ARTWORK");
-
-	local dummyFunc = function() return true; end
-
-	_G.ChatFrameToggleVoiceDeafenButton:SetVisibilityQueryFunction(dummyFunc);
-	_G.ChatFrameToggleVoiceDeafenButton:UpdateVisibleState();
-
-	_G.ChatFrameToggleVoiceMuteButton:SetVisibilityQueryFunction(dummyFunc);
-	_G.ChatFrameToggleVoiceMuteButton:UpdateVisibleState();
-
 	self:PositionSideBarIcons(chatModuleSettings, muiChatFrame);
 end
 
@@ -321,8 +310,7 @@ do
 		_G.ChatFrameChannelButton:ClearAllPoints();
 		_G.ChatFrameChannelButton:SetPoint("TOPLEFT", muiChatFrame.sidebar, "TOPLEFT", -1, -10);
 		_G.ChatFrameChannelButton:SetParent(muiChatFrame);
-		_G.ChatFrameToggleVoiceDeafenButton:SetParent(muiChatFrame);
-		_G.ChatFrameToggleVoiceMuteButton:SetParent(muiChatFrame);
+		tk:KillElement(_G.ChatFrameMenuButton);
 
 		local anchorIcon;
 

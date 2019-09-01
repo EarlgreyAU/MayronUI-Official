@@ -129,9 +129,6 @@ function C_MiniMapModule:OnInitialized(data)
 	Minimap:SetPoint(data.settings.point, _G.UIParent, data.settings.relativePoint, data.settings.x, data.settings.y);
 	Minimap:SetMaskTexture('Interface\\ChatFrame\\ChatFrameBackground'); -- make rectangle
 
-	tk:KillElement(_G.MiniMapInstanceDifficulty);
-	tk:KillElement(_G.GuildInstanceDifficulty);
-
 	_G.MinimapBorder:Hide();
 	_G.MinimapBorderTop:Hide();
 	_G.MinimapZoomIn:Hide();
@@ -145,11 +142,7 @@ function C_MiniMapModule:OnInitialized(data)
 	zoneText:ClearAllPoints();
 	zoneText:SetAllPoints(true);
 
-	-- LFG Icon:
-	_G.QueueStatusMinimapButton:SetParent(Minimap);
-	_G.QueueStatusMinimapButton:ClearAllPoints();
-	_G.QueueStatusMinimapButton:SetPoint("BOTTOMLEFT", -4, -4);
-	_G.QueueStatusMinimapButtonBorder:Hide();
+	tk:KillElement(_G.MinimapToggleButton);
 
 	-- Clock:
 	_G.TimeManagerClockButton:DisableDrawLayer("BORDER");
@@ -177,8 +170,6 @@ function C_MiniMapModule:OnInitialized(data)
 
 	-- Mouse Wheel and "Blob" ring
 	Minimap:EnableMouseWheel(true);
-	Minimap:SetArchBlobRingScalar(0);
-	Minimap:SetQuestBlobRingScalar(0);
 
 	Minimap.size = Minimap:CreateFontString(nil, "ARTWORK")
 	Minimap.size:SetFontObject("GameFontNormalLarge");
@@ -228,7 +219,6 @@ function C_MiniMapModule:OnInitialized(data)
 		GameTooltip:AddDoubleLine(L["CTRL + Drag:"], L["Move Minimap"], 1, 1, 1);
 		GameTooltip:AddDoubleLine(L["SHIFT + Drag:"], L["Resize Minimap"], 1, 1, 1);
 		GameTooltip:AddDoubleLine(L["Left Click:"], L["Ping Minimap"], 1, 1, 1);
-		GameTooltip:AddDoubleLine(L["Middle Click:"], L["Show Tracking Menu"], 1, 1, 1);
 		GameTooltip:AddDoubleLine(L["Right Click:"], L["Show Menu"], 1, 1, 1);
 		GameTooltip:AddDoubleLine(L["Mouse Wheel:"], L["Zoom in/out"], 1, 1, 1);
 		GameTooltip:AddDoubleLine(L["ALT + Left Click:"], L["Toggle this Tooltip"], 1, 0, 0, 1, 0, 0);
@@ -266,8 +256,6 @@ function C_MiniMapModule:OnInitialized(data)
         _G.Calendar_Toggle();
 	end)
 
-    eventBtn:RegisterEvent('CALENDAR_UPDATE_PENDING_INVITES');
-    eventBtn:RegisterEvent('CALENDAR_ACTION_PENDING');
     eventBtn:RegisterEvent('PLAYER_ENTERING_WORLD');
 	eventBtn:SetScript('OnEvent',function(self)
 		local numPendingInvites = _G.C_Calendar.GetNumPendingInvites();
@@ -283,25 +271,8 @@ function C_MiniMapModule:OnInitialized(data)
 
 	-- Drop down List:
 	local menuList = {
-		{ 	text = L["Calendar"],
-			func = function()
-				if (not _G["CalendarFrame"]) then
-                    LoadAddOn("Blizzard_Calendar");
-                end
-                _G.Calendar_Toggle();
-			end
-		},
 		{	text = L["Customer Support"],
 			func = ToggleHelpFrame;
-		},
-		{ 	text = L["Class Order Hall"].." / "..L["Garrison Report"],
-			func = GarrisonLandingPage_Toggle
-		},
-		{ 	text = L["Tracking Menu"],
-			func = function()
-				ToggleDropDownMenu(1, nil, _G.MiniMapTrackingDropDown, "MiniMapTracking", 0, -5);
-				PlaySound(tk.Constants.CLICK);
-			end
 		},
 		{ 	text = tk.Strings:SetTextColorByTheme(L["MUI Config Menu"]),
 			func = function()
@@ -354,57 +325,8 @@ function C_MiniMapModule:OnInitialized(data)
 	Minimap:SetScript("OnMouseUp", function(self, btn)
 		if (btn == "RightButton") then
 			EasyMenu(menuList, menuFrame, "cursor", 0, 0, "MENU", 1);
-
-		elseif (btn == "MiddleButton") then
-			ToggleDropDownMenu(1, nil, _G.MiniMapTrackingDropDown, "Minimap", 0, 0);
-			PlaySound(tk.Constants.CLICK);
-
 		else
 			self.oldMouseUp(self);
 		end
 	end);
-
-	-- Difficulty Text:
-	local mode = CreateFrame("Frame", nil, Minimap);
-	mode:SetPoint("TOPRIGHT", Minimap, "TOPRIGHT", 0, 0);
-	mode:SetSize(26, 18);
-
-	mode:RegisterEvent("PLAYER_ENTERING_WORLD");
-	mode:RegisterEvent("PLAYER_DIFFICULTY_CHANGED");
-	mode:RegisterEvent("GROUP_ROSTER_UPDATE");
-
-	mode.txt = mode:CreateFontString(nil, "OVERLAY", "MUI_FontNormal");
-	mode.txt:SetPoint("TOPRIGHT", mode, "TOPRIGHT", -5, -5);
-
-	mode:SetScript("OnEvent", function()
-		if ((_G.IsInInstance())) then
-			local difficulty = select(4, _G.GetInstanceInfo());
-
-			if (difficulty == "Heroic") then
-				difficulty = "H";
-			elseif (difficulty == "Mythic") then
-				difficulty = "M";
-			elseif (difficulty == "Looking For Raid") then
-				difficulty = "RF";
-			else
-				difficulty = "";
-			end
-
-			local players = _G.GetNumGroupMembers();
-			players = (players > 0 and players) or 1;
-			mode.txt:SetText(players .. difficulty); -- localization possible?
-		else
-			mode.txt:SetText("");
-		end
-	end);
-
-	_G.MiniMapTrackingBackground:Hide();
-	_G.MiniMapTracking:Hide();
-
-	_G.GarrisonLandingPageMinimapButton:SetSize(1, 1)
-	_G.GarrisonLandingPageMinimapButton:SetAlpha(0);
-	_G.GarrisonLandingPageMinimapButton:ClearAllPoints();
-	_G.GarrisonLandingPageMinimapButton:SetPoint("BOTTOMLEFT", UIParent, "TOPRIGHT", 5, 5);
-	_G.GarrisonLandingPageTutorialBox:Hide()
-	_G.GarrisonLandingPageTutorialBox.Show = tk.Constants.DUMMY_FUNC;
 end

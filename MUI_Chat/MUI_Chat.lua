@@ -103,9 +103,9 @@ db:AddToDefaults("profile.chat", {
 				L["Quest Log"];
 			};
 			{   key = "S"; -- SHIFT
-				L["Achievements"];
-				L["Collections Journal"];
-				L["Encounter Journal"];
+				L["Reputation"];
+				L["Macros"];
+				"Skills";
 			};
 		};
 		tabBar = {

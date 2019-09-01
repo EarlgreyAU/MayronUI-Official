@@ -5,8 +5,6 @@
     <Script file="BottomUI\ResourceBars.lua"/>
     <Script file="BottomUI\ResourceBars\ExperienceBar.lua"/>
     <Script file="BottomUI\ResourceBars\ReputationBar.lua"/>
-    <Script file="BottomUI\ResourceBars\ArtifactBar.lua"/>
-    <Script file="BottomUI\ResourceBars\AzeriteBar.lua"/>
     <Script file="BottomUI\ActionBarPanel.lua"/>
     <Script file="ObjectiveTracker.lua"/>
     <Script file="SideBar.lua"/>

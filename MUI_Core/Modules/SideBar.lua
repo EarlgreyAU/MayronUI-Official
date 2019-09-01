@@ -292,14 +292,6 @@ end
 function C_SideBarModule:OnEnable(data)
     Private.step = data.settings.animationSpeed;
     self:CreateSideBar();
-
-    em:CreateEventHandler("PET_BATTLE_OPENING_START", function()
-        data.panel:Hide();
-    end);
-
-    em:CreateEventHandler("PET_BATTLE_CLOSE", function()
-        data.panel:Show();
-    end);
 end
 
 function C_SideBarModule:SetButtonsHideInCombat(data, hide)

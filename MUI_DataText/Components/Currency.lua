@@ -70,7 +70,7 @@ function Currency:__Construct(data, settings, dataTextModule)
     data.copperString = "|TInterface\\MoneyFrame\\UI-CopperIcon:14:14:2:0|t";
     data.showMenu = true;
 
-    local calendarDate = _G.C_Calendar.GetDate();
+    local calendarDate = _G.C_DateAndTime:GetTodaysDate();
     local month = calendarDate["month"];
     local day = calendarDate["monthDay"];
 

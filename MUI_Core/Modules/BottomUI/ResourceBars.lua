@@ -6,7 +6,7 @@ local InCombatLockdown, CreateFrame = _G.InCombatLockdown, _G.CreateFrame;
 
 -- Constants -----------------------------
 
-local BAR_NAMES = {"reputation", "experience", "azerite", "artifact"};
+local BAR_NAMES = {"reputation", "experience"};
 
 -- Setup Objects -------------------------
 
@@ -17,8 +17,6 @@ local ResourceBarsPackage = obj:CreatePackage("ResourceBars", "MayronUI");
 local C_BaseResourceBar = ResourceBarsPackage:CreateClass("BaseResourceBar", "Framework.System.FrameWrapper");
 local C_ExperienceBar = ResourceBarsPackage:CreateClass("ExperienceBar", C_BaseResourceBar);
 local C_ReputationBar = ResourceBarsPackage:CreateClass("ReputationBar", C_BaseResourceBar);
-local C_AzeriteBar = ResourceBarsPackage:CreateClass("AzeriteBar", C_BaseResourceBar);
-local C_ArtifactBar = ResourceBarsPackage:CreateClass("ArtifactBar", C_BaseResourceBar);
 
 -- Register and Import Modules -----------
 
@@ -42,18 +40,6 @@ db:AddToDefaults("profile.resourceBars", {
         alwaysShowText = false;
         fontSize = 8;
     };
-    artifactBar = {
-        enabled = true;
-        height = 8;
-        alwaysShowText = false;
-        fontSize = 8;
-    };
-    azeriteBar = {
-        enabled = true;
-        height = 8;
-        alwaysShowText = false;
-        fontSize = 8;
-    };
 });
 
 -- C_ResourceBarsModule -------------------
@@ -65,8 +51,6 @@ function C_ResourceBarsModule:OnInitialize(data, containerModule)
             first = {
                 "experienceBar.enabled";
                 "reputationBar.enabled";
-                "artifactBar.enabled";
-                "azeriteBar.enabled";
             };
             ignore = {
                 ".*"; -- ignore everything else
@@ -106,25 +90,6 @@ function C_ResourceBarsModule:OnInitialize(data, containerModule)
             alwaysShowText = UpdateResourceBar;
             fontSize = UpdateResourceBar;
         };
-
-        artifactBar = {
-            enabled = function(value)
-                data.bars.artifact:SetEnabled(value);
-            end;
-
-            height = UpdateResourceBar;
-            alwaysShowText = UpdateResourceBar;
-            fontSize = UpdateResourceBar;
-        };
-        azeriteBar = {
-            enabled = function(value)
-                data.bars.azerite:SetEnabled(value);
-            end;
-
-            height = UpdateResourceBar;
-            alwaysShowText = UpdateResourceBar;
-            fontSize = UpdateResourceBar;
-        };
     }, options);
 
     if (data.settings.enabled) then
@@ -154,8 +119,6 @@ function C_ResourceBarsModule:OnEnable(data)
     data.bars = obj:PopTable();
     data.bars.experience = C_ExperienceBar(self, data);
     data.bars.reputation = C_ReputationBar(self, data);
-    data.bars.artifact = C_ArtifactBar(self, data);
-    data.bars.azerite = C_AzeriteBar(self, data);
 
     MayronUI:Hook("DataTextModule", "OnInitialize", function(dataTextModule, dataTextModuleData)
         dataTextModule:RegisterUpdateFunctions(db.profile.datatext, {

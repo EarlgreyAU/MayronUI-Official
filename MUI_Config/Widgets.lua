@@ -60,8 +60,10 @@ function WidgetHandlers.submenu(parent, submenuConfigTable)
     btn.text:SetPoint("TOPLEFT", 10, 0);
     btn.text:SetPoint("BOTTOMRIGHT");
 
-    btn.normal = tk:SetBackground(btn, 1, 1, 1, 0);
-    btn.highlight = tk:SetBackground(btn, 1, 1, 1, 0);
+    local filePath = tk:GetAssetFilePath("Textures\\Widgets\\Solid");
+
+    btn.normal = tk:SetBackground(btn, filePath);
+    btn.highlight = tk:SetBackground(btn, filePath);
 
     tk:ApplyThemeColor(btn.normal, btn.highlight);
 

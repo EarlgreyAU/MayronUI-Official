@@ -2,7 +2,7 @@
 local MayronUI = _G.MayronUI;
 local tk, db, em, gui, obj, L = MayronUI:GetCoreComponents(); -- luacheck: ignore
 
-local TalkingHeadFrame, C_PetBattles = _G.TalkingHeadFrame, _G.C_PetBattles;
+local TalkingHeadFrame = _G.TalkingHeadFrame;
 local CreateFrame, UIParent = _G.CreateFrame, _G.UIParent;
 
 -- Register and Import Modules -----------
@@ -25,29 +25,6 @@ function C_Container:OnInitialize(data)
     data.container = CreateFrame("Frame", "MUI_BottomContainer", UIParent);
     data.container:SetPoint("BOTTOM", 0, -1);
     data.container:SetFrameStrata("LOW");
-
-    em:CreateEventHandler("PET_BATTLE_OVER", function()
-        data.container:Show();
-    end);
-
-    em:CreateEventHandler("PET_BATTLE_OPENING_START", function()
-        data.container:Hide();
-    end);
-
-    em:CreateEventHandler("TALKINGHEAD_REQUESTED", function()
-        if (TalkingHeadFrame) then
-            TalkingHeadFrame:ClearAllPoints();
-            TalkingHeadFrame:SetParent(UIParent);
-            TalkingHeadFrame:SetPoint("BOTTOM", 0, 250);
-            TalkingHeadFrame.ClearAllPoints = tk.Constants.DUMMY_FUNC;
-            TalkingHeadFrame.SetParent = tk.Constants.DUMMY_FUNC;
-            TalkingHeadFrame.SetPoint = tk.Constants.DUMMY_FUNC;
-        end
-    end);
-
-    if (C_PetBattles.IsInBattle()) then
-        data.container:Hide();
-    end
 
     -- Initialize Sub Modules -------------
 

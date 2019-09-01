@@ -140,32 +140,7 @@ function tk:GetMaxPlayerLevel()
     if (_G.IsTrialAccount()) then
         return 20;
     else
-        local id = _G.GetAccountExpansionLevel();
-
-        if (id == 0) then
-            return 60;
-
-        elseif (id == 1) then
-            return 70;
-
-        elseif (id == 2) then
-            return 80;
-
-        elseif (id == 3) then
-            return 85;
-
-        elseif (id == 4) then
-            return 90;
-
-        elseif (id == 5) then
-            return 100;
-
-        elseif (id == 6) then
-            return 110;
-
-        elseif (id == 7) then
-            return 120;
-        end
+        return 60;
     end
 end
 

@@ -464,7 +464,7 @@ function C_ConfigModule:GetConfigTable()
             module = "BottomUI_ResourceBars";
             children = {
                 {   type = "loop";
-                    args = { "Artifact", "Azerite", "Experience", "Reputation" };
+                    args = { "Experience", "Reputation" };
                     func = function(id, name)
                         local key = name:lower().."Bar";
                         local child = {

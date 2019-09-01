@@ -5,7 +5,7 @@ local _G, MayronUI = _G, _G.MayronUI;
 local tk, db, _, _, obj = MayronUI:GetCoreComponents();
 
 local GetSpellInfo, IsAddOnLoaded, UnitName = _G.GetSpellInfo, _G.IsAddOnLoaded, _G.UnitName;
-local UnitChannelInfo, UnitCastingInfo, CreateFrame = _G.UnitChannelInfo, _G.UnitCastingInfo, _G.CreateFrame;
+local ChannelInfo, CastingInfo, CreateFrame = _G.ChannelInfo, _G.CastingInfo, _G.CreateFrame;
 local UIFrameFadeIn, UIFrameFadeOut, select, date, math, tonumber, string, table, ipairs =
     _G.UIFrameFadeIn, _G.UIFrameFadeOut, _G.select, _G.date, _G.math, _G.tonumber, _G.string, _G.table, _G.ipairs;
 local GetNetStats = _G.GetNetStats;
@@ -26,7 +26,6 @@ local C_CastBar = Engine:CreateClass("CastBar", "Framework.System.FrameWrapper")
 C_CastBar.Static:AddFriendClass("CastBarsModule");
 
 namespace.bars = obj:PopTable();
-
 
 -- Load Database Defaults --------------
 
@@ -58,10 +57,9 @@ db:AddToDefaults("profile.castBars", {
         anchorToSUF   = true;
         showLatency   = true;
     },
-    Target = {
-        anchorToSUF = true;
-    },
-    Focus = {};
+    -- Target = {
+    --     anchorToSUF = true;
+    -- },
     Mirror = {
         position = {"TOP", "UIParent", "TOP", 0,  -200};
     };
@@ -174,7 +172,7 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:PLAYER_TARGET_CHANGED(castBar, castBarData)
-	if (_G.UnitExists(castBarData.unitID) and select(1, _G.UnitCastingInfo(castBarData.unitID))) then
+	if (_G.UnitExists(castBarData.unitID) and select(1, CastingInfo())) then
         if (_G.UnitName(castBarData.unitID) == castBarData.unitName) then return end
 
 		castBar:StopCasting();
@@ -190,7 +188,7 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:UNIT_SPELLCAST_DELAYED(castBar, castBarData)
-    local endTime = select(5, _G.UnitCastingInfo(castBarData.unitID));
+    local endTime = select(5, CastingInfo());
 
 	if (not endTime or not castBarData.startTime) then
 		self:UNIT_SPELLCAST_INTERRUPTED(castBar, castBarData);
@@ -232,7 +230,7 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:UNIT_SPELLCAST_CHANNEL_UPDATE(castBar, castBarData)
-    local endTime = select(5, _G.UnitChannelInfo(castBarData.unitID));
+    local endTime = select(5, ChannelInfo());
 
     if (not endTime or not castBarData.startTime) then
         castBar:StopCasting();
@@ -273,10 +271,6 @@ local function CastBarFrame_OnUpdate(self, elapsed)
 end
 
 local function CastBarFrame_OnEvent(self, eventName, ...)
-    if (eventName == "PLAYER_FOCUS_CHANGED") then
-        eventName = "PLAYER_TARGET_CHANGED";
-    end
-
     Events[eventName](Events, self.castBar, namespace.castBarData[self.unitID] , ...);
 end
 
@@ -344,16 +338,16 @@ do
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_START", data.unitID);
-                bar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", data.unitID);
-                bar:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", data.unitID);
 
+                -- TODO: Not supported in Classic
+                -- bar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", data.unitID);
+                -- bar:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", data.unitID);
+
                 if (data.unitID == "target") then
                     bar:RegisterEvent("PLAYER_TARGET_CHANGED");
-                elseif (data.unitID == "focus") then
-                    bar:RegisterEvent("PLAYER_FOCUS_CHANGED");
                 end
             end
 
@@ -513,8 +507,8 @@ Engine:DefineParams("boolean");
 ---Start casting or channelling a spell/ability.
 ---@param channelling boolean @If true, the casting type is set to "channelling" to reverse the bar direction.
 function C_CastBar:StartCasting(data, channelling)
-    local func = channelling and UnitChannelInfo or UnitCastingInfo;
-    local name, _, texture, startTime, endTime, _, _, notInterruptible = func(data.unitID);
+    local func = channelling and ChannelInfo or CastingInfo;
+    local name, _, texture, startTime, endTime, _, _, notInterruptible = func();
 
 	if (not startTime) then
 		if (data.frame:GetAlpha() > 0 and not data.fadingOut) then
@@ -624,7 +618,8 @@ function C_CastBarsModule:OnInitialize(data)
         r = r, g = g, b = b, a = 0.7
     });
 
-    for _, barName in obj:IterateArgs("Player", "Target", "Focus", "Mirror") do
+    -- TODO: Target should be here
+    for _, barName in obj:IterateArgs("Player", "Mirror") do
         local sv = db.profile.castBars[barName]; ---@type Observer
         sv:SetParent(db.profile.castBars.__templateCastBar);
     end
@@ -634,7 +629,6 @@ function C_CastBarsModule:OnInitialize(data)
             first = {
                 "Player.enabled";
                 "Target.enabled";
-                "Focus.enabled";
                 "Mirror.enabled";
             };
             dependencies = {

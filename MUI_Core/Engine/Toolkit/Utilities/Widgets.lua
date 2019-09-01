@@ -285,6 +285,7 @@ function tk:SetBackground(frame, ...)
     texture:SetAllPoints(frame);
 
     if (#args > 1) then
+        -- TODO: Does not work in Classic!
         texture:SetColorTexture(...);
     else
         texture:SetTexture(args[1]);

@@ -58,7 +58,7 @@ db:AddToDefaults("profile.datatext", {
         "inventory";
         "currency";
         "performance";
-        "specialization";
+
     };
 });
 

@@ -545,7 +545,10 @@ function C_SetUpModule:Install()
     SetChatWindowSize(1, 13);
     SetCVar("chatStyle", "classic");
     SetCVar("floatingCombatTextCombatDamage", "1");
-    SetCVar("floatingCombatTextCombatHealing", "1");
+
+    -- not supported in classic (name changed?):
+    -- SetCVar("floatingCombatTextCombatHealing", "1");
+
     SetCVar("useUiScale", "1");
     SetCVar("uiscale", db.global.core.uiScale);
 
