@@ -16,10 +16,10 @@ db:AddToDefaults("global.movable", {
 });
 
 local BlizzardFrames = {
-	"QuestLogPopupDetailFrame", "InterfaceOptionsFrame", "QuestFrame", "GossipFrame", "DurabilityFrame",
+	"QuestLogFrame", "InterfaceOptionsFrame", "GossipFrame", "DurabilityFrame",
 	"FriendsFrame", "MailFrame", "SpellBookFrame", "PetitionFrame", "BankFrame",
 	"TimeManagerFrame", "LFGDungeonReadyStatus", "RecruitAFriendFrame", "VideoOptionsFrame", "LFGDungeonReadyDialog",
-	"AddonList", "WorldStateScoreFrame", "LFDRoleCheckPopup", "ChatConfigFrame", "GuildInviteFrame",
+	"AddonList", "WorldStateScoreFrame", "ChatConfigFrame", "GuildInviteFrame",
 	"LootFrame", "ReadyCheckFrame", "BonusRollMoneyWonFrame", "BonusRollFrame", "TradeFrame", "TabardFrame", "GuildRegistrarFrame",
 	"ItemTextFrame", "DressUpFrame", "GameMenuFrame", "TaxiFrame", "HelpFrame", "PVEFrame", "MerchantFrame",
 	"PetBattleFrame.ActiveAlly", "PetBattleFrame.ActiveEnemy", "ChannelFrame", "WorldMapFrame",
@@ -58,7 +58,7 @@ local BlizzardFrames = {
 	Blizzard_VoidStorageUI = "VoidStorageFrame";
 	Blizzard_ItemAlterationUI = "TransmogrifyFrame";
 	Blizzard_GuildBankUI = "GuildBankFrame";
-	Blizzard_TalentUI = "PlayerTalentFrame";
+	Blizzard_TalentUI = "TalentFrame";
 	Blizzard_MacroUI = "MacroFrame";
 	Blizzard_BindingUI = "KeyBindingFrame";
 	Blizzard_Calendar = "CalendarFrame";

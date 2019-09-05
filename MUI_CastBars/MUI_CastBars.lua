@@ -342,10 +342,6 @@ do
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", data.unitID);
 
-                -- TODO: Not supported in Classic
-                -- bar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", data.unitID);
-                -- bar:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", data.unitID);
-
                 if (data.unitID == "target") then
                     bar:RegisterEvent("PLAYER_TARGET_CHANGED");
                 end

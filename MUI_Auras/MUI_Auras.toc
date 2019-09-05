@@ -1,0 +1,6 @@
+## Interface: 11302
+## Title: |cff00ccffMUI|r Auras
+## Dependencies: MUI_Core
+## LoadOnDemand: 1
+
+MUI_Auras.lua
