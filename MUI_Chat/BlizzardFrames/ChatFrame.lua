@@ -116,7 +116,7 @@ local function RepositionNotificationFrame(chatFrame)
 end
 
 function C_ChatModule:SetUpBlizzardChatFrame(_, chatFrameID)
-  	local chatFrameName = string.format("ChatFrame%d", chatFrameID);
+	local chatFrameName = string.format("ChatFrame%d", chatFrameID);
 
 	local chatFrame = _G[chatFrameName];
 	chatFrame:SetFrameStrata("LOW");
@@ -148,6 +148,9 @@ function C_ChatModule:SetUpBlizzardChatFrame(_, chatFrameID)
 	tabLabel:SetPoint("CENTER", tab, "CENTER");
 
 	tk:KillAllElements(
+		_G[ string.format("%sEditBoxLeft", chatFrameName) ],
+		_G[ string.format("%sEditBoxMid", chatFrameName) ],
+		_G[ string.format("%sEditBoxRight", chatFrameName) ],
 		_G[ string.format("%sButtonFrame", chatFrameName) ],
 		_G[ string.format("%sTabSelectedLeft", chatFrameName) ],
 		_G[ string.format("%sTabSelectedMiddle", chatFrameName) ],
