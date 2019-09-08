@@ -81,6 +81,14 @@ function tk.Tables:GetIndex(tbl, value, position)
     return nil;
 end
 
+function tk.Tables:IndexOf(tbl, value)
+    for id, otherValue in ipairs(tbl) do
+        if (value == otherValue) then
+            return id;
+        end
+    end
+end
+
 -- includes both the index length and the hash table length
 function tk.Tables:GetFullSize(tbl)
     local size = 0;
