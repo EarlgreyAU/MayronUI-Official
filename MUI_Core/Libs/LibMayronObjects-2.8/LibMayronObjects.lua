@@ -554,6 +554,15 @@ local function CreateProxyObject(object, key, self, controller, privateData)
         Core:Assert(Lib:IsFunction(proxyObject.object[proxyObject.key]),
             "Could not find function '%s' for object '%s'", proxyObject.key, proxyObject.controller.objectName);
 
+        -- execute attributes:
+        local attributes = Core:GetAttributes(proxyObject);
+
+        if (Lib:IsTable(attributes)) then
+            for _, attribute in ipairs(attributes) do
+                attribute:OnExecute(proxyObject.self, proxyObject.privateData, proxyObject.key, ...);
+            end
+        end
+
         -- Validate return values received after calling the function
         local returnValues = Lib:PopTable(
             Core:ValidateFunctionCall(definition, errorMessage,
@@ -1173,6 +1182,7 @@ function Core:AttachFunctionDefinition(controller, newFuncKey, fromInterface)
     -- temporary definition info (received from DefineParams and DefineReturns function calls)
     local tempParamDefs = controller.packageData.tempParamDefs;
     local tempReturnDefs = controller.packageData.tempReturnDefs;
+    local tempAttributes = controller.packageData.tempAttributes;
     local isVirtual = controller.packageData.isVirtual;
 
     -- holds definition for the new function
@@ -1190,10 +1200,16 @@ function Core:AttachFunctionDefinition(controller, newFuncKey, fromInterface)
         Lib:PushTable(tempReturnDefs);
     end
 
+    if (tempAttributes and #tempAttributes > 0) then
+        funcDefinition = funcDefinition or Lib:PopTable();
+        funcDefinition.attributes = tempAttributes;
+    end
+
     -- remove temporary definitions once implemented
     controller.packageData.tempParamDefs = nil;
     controller.packageData.tempReturnDefs = nil;
     controller.packageData.isVirtual = nil;
+    controller.packageData.tempAttributes = nil;
 
     if (fromInterface) then
         controller.interfaceDefinitions = controller.interfaceDefinitions or Lib:PopTable();
@@ -1540,7 +1556,7 @@ do
             return;
         end
 
-        local errorMessage = string.format(errorMessagePattern, proxyObject.controller.objectName, proxyObject.key);
+        local errorMessage = errorMessagePattern and string.format(errorMessagePattern, proxyObject.controller.objectName, proxyObject.key);
         return definitions, errorMessage;
     end
 
@@ -1550,6 +1566,10 @@ do
 
     function Core:GetReturnsDefinition(proxyObject)
         return GetDefinitions(proxyObject, returnErrorMessage, "returnDefs");
+    end
+
+    function Core:GetAttributes(proxyObject)
+        return GetDefinitions(proxyObject, returnErrorMessage, "attributes");
     end
 end
 
@@ -1757,6 +1777,20 @@ end
 ---Define the next class function as virtual
 function Package:DefineVirtual(data)
     data.isVirtual = true;
+end
+
+function Package:SetAttribute(data, attributeClass, ...)
+    if (Lib:IsString(attributeClass)) then
+        attributeClass = Lib:Import(attributeClass);
+    end
+
+    local attribute = attributeClass(...);
+
+    if (Lib:IsTable(data.tempAttributes)) then
+        table.insert(data.tempAttributes, attribute);
+    else
+        data.tempAttributes = Lib:PopTable(attribute);
+    end
 end
 
 ---prevents other functions being added or modified

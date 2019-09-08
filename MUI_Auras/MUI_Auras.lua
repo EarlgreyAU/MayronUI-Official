@@ -86,18 +86,6 @@ db:AddToDefaults("profile.auras", {
 });
 
 -- C_Aura ----------------------
--- local function AuraFrame_OnClick(self)
---     if (self.filter) then
---         _G.CancelUnitBuff("player", self:GetID(), self.filter);
-
---     elseif (self:GetID() == MAIN_ENCHANT_ID) then
---         _G.securecall("CancelItemTempEnchantment", 1);
-
--- 	elseif (self:GetID() == OFF_ENCHANT_ID) then
--- 		_G.securecall("CancelItemTempEnchantment", 2);
---     end
--- end
-
 local function AuraFrame_OnEnter(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", 0, 0);
 
@@ -143,7 +131,6 @@ function C_Aura:__Construct(data, auraArea, id)
     data.frame = btn; -- needed for GetFrame()
     self:SetArea(auraArea);
 
-    -- btn:SetScript("OnClick", AuraFrame_OnClick);
     btn:SetScript("OnEnter", AuraFrame_OnEnter);
     btn:SetScript("OnLeave", tk.GeneralTooltip_OnLeave);
 
@@ -324,8 +311,6 @@ do
             ((s.auraSize + s.rowSpacing) * math.ceil(BUFF_MAX_DISPLAY / s.perRow)) - s.rowSpacing);
 
         data.frame:SetPoint(unpack(s.position));
-        -- tk:MakeMovable(data.frame);
-        -- tk:SetBackground(data.frame, 1, 1, 1, 0.5);
 
         if (data.settings.showEnchants) then
             data.mainHandAura = auraStack:Pop(self, MAIN_ENCHANT_ID);
@@ -408,6 +393,7 @@ local function SortAurasByTimeRemaining(a, b)
     return a.timeRemaining > b.timeRemaining;
 end
 
+Engine:SetAttribute("Framework.System.Attributes.InCombatAttribute");
 function C_AuraArea:RefreshAnchors(data, activeAuras)
     data.frame.forceUpdate = true;
 
