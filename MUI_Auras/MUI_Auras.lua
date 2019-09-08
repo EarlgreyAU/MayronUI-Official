@@ -33,27 +33,6 @@ local C_Aura = Engine:CreateClass("Aura", "Framework.System.FrameWrapper");
 local C_AuraArea = Engine:CreateClass("AuraArea", "Framework.System.FrameWrapper");
 C_AuraArea.Static:AddFriendClass("Aura");
 
----@type Stack
-local Stack = obj:Import("Framework.System.Collections.Stack<T>");
-local auraStack = Stack:Of(C_Aura)();
-
-auraStack:OnNewItem(function(auraArea, id)
-    return C_Aura(auraArea, id);
-end);
-
-auraStack:OnPushItem(function(aura)
-    local areaFrame = aura:GetAreaFrame();
-    local areaTable = framesToUpdate[tostring(areaFrame)];
-    local index = tk.Tables:IndexOf(areaTable, aura:GetFrame());
-
-    table.remove(areaTable, index);
-end);
-
-auraStack:OnPopItem(function(aura, auraArea, id)
-    aura:SetArea(auraArea);
-    aura:SetID(id);
-end);
-
 -- Load Database Defaults --------------
 
 db:AddToDefaults("profile.auras", {
@@ -108,9 +87,11 @@ function C_Aura:SetArea(data, auraArea)
     if (data.auraType == "Buffs") then
         data.frame:SetAttribute("type2", "cancelaura");
         data.frame:SetAttribute("cancelaura", "player", data.frame:GetID());
+        data.frame.filter = "HELPFUL";
     else
         data.frame:SetAttribute("type2", nil);
         data.frame:SetAttribute("cancelaura", nil);
+        data.frame.filter = "HARMFUL";
     end
 
     table.insert(framesToUpdate[tostring(areaData.frame)], data.frame);
@@ -138,9 +119,9 @@ function C_Aura:__Construct(data, auraArea, id)
     btn:SetSize(32, 32);
 
     if (id == MAIN_ENCHANT_ID or id == OFF_ENCHANT_ID) then
-        data.background = tk:SetBackground(btn, 0.53, 0.23, 0.78);
+        btn.background = tk:SetBackground(btn, 0.53, 0.23, 0.78);
     else
-        data.background = tk:SetBackground(btn, 0, 0, 0);
+        btn.background = tk:SetBackground(btn, 0, 0, 0);
     end
 
     btn.iconTexture = btn:CreateTexture(nil, "ARTWORK");
@@ -197,8 +178,6 @@ local function AuraEnchantFrame_OnUpdate(self, globalName)
     self.filter = nil; -- weapon enchant
 
     if (not hasEnchant) then
-        self:SetAllPoints(tk.Constants.DUMMY_FRAME);
-        self:Hide();
         self.isEnchantActive = nil;
         em:FindEventHandlerByKey(globalName.."Handler"):Run("UNIT_AURA");
         return;
@@ -230,15 +209,9 @@ local function AuraEnchantFrame_OnUpdate(self, globalName)
 end
 
 function C_Aura:Enable(data, iconTexture)
-    -- needed for tooltip
-    if (data.auraType == "Buffs") then
-        data.frame.filter = "HELPFUL";
-    else
-        data.frame.filter = "HARMFUL";
-    end
-
+    data.frame:EnableMouse(true);
     data.frame.iconTexture:SetTexture(iconTexture);
-    data.background:SetVertexColor(0, 0, 0);
+    data.frame.background:SetVertexColor(0, 0, 0, 1);
 end
 
 function C_Aura:UpdateAppearance()
@@ -246,9 +219,9 @@ function C_Aura:UpdateAppearance()
 end
 
 function C_Aura:Disable(data)
-    data.frame:SetAllPoints(tk.Constants.DUMMY_FRAME);
-    data.frame:Hide();
-    auraStack:Push(self);
+    data.frame:EnableMouse(false);
+    data.frame.iconTexture:SetTexture("");
+    data.frame.background:SetAlpha(0);
 end
 
 -- C_AuraArea ----------------------
@@ -259,46 +232,34 @@ function C_AuraArea:__Construct(data, settings, areaName)
     data.globalName = string.format("MUI_%sArea", areaName);
     data.appearance = settings.appearance;
     data.auras = obj:PopTable();
-    data.auras.Buffs = obj:PopTable();
-    data.auras.Debuffs = obj:PopTable();
+
+    if (data.settings.auraType == "Buffs") then
+        data.totalAuras = BUFF_MAX_DISPLAY;
+        data.filter = "HELPFUL";
+    else
+        data.totalAuras = DEBUFF_MAX_DISPLAY;
+        data.filter = "HARMFUL";
+    end
 end
 
 do
-    ---@param auraArea C_AuraArea
-    ---@param mainHandAura C_Aura
-    ---@param offHandAura C_Aura
-    local function CheckAuras(_, _, auraArea, auras, auraType)
-        local activeAuras = obj:PopTable();
-        local filter, global;
+    ---@param auras table
+    ---@param totalAuras number
+    ---@param filter string
+    local function CheckAuras(_, _, auras, totalAuras, filter)
+        -- need to check mainHandEnchant and offHandEnchant
 
-        if (auraType == "Buffs") then
-            filter, global = "HELPFUL", BUFF_MAX_DISPLAY;
-        else
-            filter, global = "HARMFUL", DEBUFF_MAX_DISPLAY;
-        end
 
-        for index = 1, global do
-            local aura = auras[auraType][index]; ---@type C_Aura
+        for index = 1, totalAuras do
+            local aura = auras[index]; ---@type C_Aura
             local name, iconTexture = UnitAura("player", index, filter);
 
             if (name) then
-                if (not aura) then
-                    auras[auraType][index] = auraStack:Pop(auraArea, index);
-                    aura = auras[auraType][index];
-                end
-
                 aura:Enable(iconTexture, false);
-                table.insert(activeAuras, aura);
-
-            elseif (aura) then
+            else
                 aura:Disable();
             end
         end
-
-        obj:PushTable(auras[auraType]);
-        auras[auraType] = activeAuras;
-
-        auraArea:RefreshAnchors(auras[auraType]);
     end
 
     function C_AuraArea:CreateAuraAreaFrame(data)
@@ -313,13 +274,19 @@ do
         data.frame:SetPoint(unpack(s.position));
 
         if (data.settings.showEnchants) then
-            data.mainHandAura = auraStack:Pop(self, MAIN_ENCHANT_ID);
-            data.offHandAura = auraStack:Pop(self, OFF_ENCHANT_ID);
+            data.mainHandAura = C_Aura(self, MAIN_ENCHANT_ID);
+            data.offHandAura = C_Aura(self, OFF_ENCHANT_ID);
         end
+
+        for index = 1, data.totalAuras do
+            data.auras[index] = C_Aura(self, index);
+        end
+
+        self:PositionAuraFrames();
 
         -- Can I shorten this?
         em:CreateUnitEventHandlerWithKey("UNIT_AURA", data.globalName.."Handler", CheckAuras, "Player")
-            :SetCallbackArgs(self, data.auras, data.settings.auraType)
+            :SetCallbackArgs(data.auras, data.totalAuras, data.filter)
             :AppendEvent("GROUP_ROSTER_UPDATE")
             :AppendEvent("PLAYER_ENTERING_WORLD");
     end
@@ -330,12 +297,11 @@ do
     local function AuraArea_OnUpdate(self, elapsed)
         self.timeSinceLastUpdate = self.timeSinceLastUpdate + elapsed;
 
-        if (self.timeSinceLastUpdate < 1 and not self.forceUpdate) then
+        if (self.timeSinceLastUpdate < 1) then
             return;
         end
 
         self.timeSinceLastUpdate = 0;
-        self.forceUpdate = nil;
 
         for _, auraFrame in ipairs(framesToUpdate[tostring(self)]) do
             local id = auraFrame:GetID();
@@ -377,53 +343,15 @@ do
     end
 end
 
-local function SortAurasByTimeRemaining(a, b)
-    if (not a.timeRemaining and not b.timeRemaining) then
-        return 0;
-    end
-
-    if (not a.timeRemaining) then
-        return -1;
-    end
-
-    if (not b.timeRemaining) then
-        return 1;
-    end
-
-    return a.timeRemaining > b.timeRemaining;
-end
-
 Engine:SetAttribute("Framework.System.Attributes.InCombatAttribute");
-function C_AuraArea:RefreshAnchors(data, activeAuras)
-    data.frame.forceUpdate = true;
-
+function C_AuraArea:PositionAuraFrames(data)
     local frames = obj:PopTable();
 
-    for _, aura in pairs(activeAuras) do
+    for _, aura in pairs(data.auras) do
         local frame = aura:GetFrame();
-
-        obj:Assert(frame, "Frame is nil");
-
+        obj:Assert(obj:IsWidget(frame, "Frame"), "Frame is missing.");
         frame:ClearAllPoints();
         table.insert(frames, frame);
-    end
-
-    -- sort by time remaining:
-    table.sort(frames, SortAurasByTimeRemaining)
-
-    if (data.mainHandAura and data.offHandAura) then
-        local mainHandFrame = data.mainHandAura:GetFrame();
-        local offHandFrame = data.offHandAura:GetFrame();
-
-        if (mainHandFrame.isEnchantActive) then
-            mainHandFrame:ClearAllPoints();
-            table.insert(frames, 1, mainHandFrame);
-        end
-
-        if (offHandFrame.isEnchantActive) then
-            offHandFrame:ClearAllPoints();
-            table.insert(frames, 2, offHandFrame);
-        end
     end
 
     local totalPositioned = 0;

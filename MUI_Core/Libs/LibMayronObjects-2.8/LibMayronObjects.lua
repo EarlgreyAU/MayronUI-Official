@@ -559,7 +559,9 @@ local function CreateProxyObject(object, key, self, controller, privateData)
 
         if (Lib:IsTable(attributes)) then
             for _, attribute in ipairs(attributes) do
-                attribute:OnExecute(proxyObject.self, proxyObject.privateData, proxyObject.key, ...);
+                if (not attribute:OnExecute(proxyObject.self, proxyObject.privateData, proxyObject.key, ...)) then
+                    return nil; -- if attribute returns false, do no move onto the next attribute and do not call function
+                end
             end
         end
 

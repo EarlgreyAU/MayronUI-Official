@@ -22,6 +22,33 @@ function tk.Tables:GetKeys(tbl, keys)
     return keys;
 end
 
+function tk.Tables:GetSize(tbl, includeIndices, includeKeys)
+    local size = 0;
+
+    includeIndices = (includeIndices == nil and true) or includeIndices;
+    includeKeys = (includeKeys == nil and true) or includeKeys;
+
+    if (includeIndices and includeKeys) then
+        for _, _ in pairs(tbl) do
+            size = size + 1;
+        end
+
+    elseif (includeIndices and not includeKeys) then
+        for _, _ in ipairs(tbl) do
+            size = size + 1;
+        end
+
+    elseif (not includeIndices and includeKeys) then
+        for key, _ in pairs(tbl) do
+            if (type(key) == "string") then
+                size = size + 1;
+            end
+        end
+    end
+
+    return size;
+end
+
 -- gets or creates a table:
 -- example:
 -- tbl = tbl or {};
@@ -89,17 +116,6 @@ function tk.Tables:IndexOf(tbl, value)
     end
 end
 
--- includes both the index length and the hash table length
-function tk.Tables:GetFullSize(tbl)
-    local size = 0;
-
-    for _, _ in pairs(tbl) do
-        size = size + 1;
-    end
-
-    return size;
-end
-
 function tk.Tables:AddAll(tbl, ...)
     for _, value in obj:IterateArgs(...) do
         table.insert(tbl, value);
@@ -113,7 +129,7 @@ function tk.Tables:Empty(tbl)
 end
 
 function tk.Tables:IsEmpty(tbl)
-    local size = self:GetFullSize(tbl);
+    local size = self:GetSize(tbl);
     return size == 0;
 end
 
