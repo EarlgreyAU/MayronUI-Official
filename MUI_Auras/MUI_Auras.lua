@@ -17,8 +17,6 @@ local framesToUpdate = {};
 
 -- Objects -----------------------------
 
---TODO: Weapon enchant when first applied - Combat Log? Always have them created?
---TODO: Destroy buffs correctly
 --TODO: Make configurable
 
 ---@type Engine
@@ -65,7 +63,7 @@ db:AddToDefaults("profile.auras", {
         position = {"CENTER", "UIParent", "CENTER", 0,  0};
         colSpacing = 4;
         rowSpacing = 16;
-        perRow = 10;
+        perRow = 15;
         direction = "LEFT";
         showEnchants = false;
         auraSize = 32;
@@ -81,14 +79,25 @@ db:AddToDefaults("profile.auras", {
         showEnchants = true;
     };
 
-    -- TODO
-    -- Debuffs = {
-    --     position = {"TOP", "UIParent", "TOP", 0,  -200};
-    --     auraType = "Debuffs";
-    -- };
+    Debuffs = {
+        position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
+        auraType = "Debuffs";
+    };
 });
 
 -- C_Aura ----------------------
+-- local function AuraFrame_OnClick(self)
+--     if (self.filter) then
+--         _G.CancelUnitBuff("player", self:GetID(), self.filter);
+
+--     elseif (self:GetID() == MAIN_ENCHANT_ID) then
+--         _G.securecall("CancelItemTempEnchantment", 1);
+
+-- 	elseif (self:GetID() == OFF_ENCHANT_ID) then
+-- 		_G.securecall("CancelItemTempEnchantment", 2);
+--     end
+-- end
+
 local function AuraFrame_OnEnter(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", 0, 0);
 
@@ -134,6 +143,7 @@ function C_Aura:__Construct(data, auraArea, id)
     data.frame = btn; -- needed for GetFrame()
     self:SetArea(auraArea);
 
+    -- btn:SetScript("OnClick", AuraFrame_OnClick);
     btn:SetScript("OnEnter", AuraFrame_OnEnter);
     btn:SetScript("OnLeave", tk.GeneralTooltip_OnLeave);
 
@@ -203,6 +213,7 @@ local function AuraEnchantFrame_OnUpdate(self, globalName)
         self:SetAllPoints(tk.Constants.DUMMY_FRAME);
         self:Hide();
         self.isEnchantActive = nil;
+        em:FindEventHandlerByKey(globalName.."Handler"):Run("UNIT_AURA");
         return;
     end
 
@@ -455,36 +466,12 @@ function C_AuraArea:RefreshAnchors(data, activeAuras)
     end
 end
 
--- Events ---------------------
-local Events = obj:PopTable();
-
----@param castBarData table
----@param pauseDuration number
-function Events:MIRROR_TIMER_PAUSE(_, castBarData, pauseDuration)
-    castBarData.paused = pauseDuration > 0;
-
-    if (pauseDuration > 0) then
-        castBarData.pauseDuration = pauseDuration;
-    end
-end
-
--- events:
-
--- function BuffButton_OnLoad(self)
--- 	self:RegisterForClicks("RightButtonUp");
--- end
-
--- function BuffButton_OnClick(self)
--- 	CancelUnitBuff(self.unit, self:GetID(), self.filter);
--- end
-
-
 -- C_AurasModule -----------------------
 function C_AurasModule:OnInitialize(data)
     data.auraAreas = obj:PopTable();
 
     -- TODO: Target should be here
-    for _, barName in obj:IterateArgs("Buffs") do -- TODO: Add Debuffs
+    for _, barName in obj:IterateArgs("Buffs", "Debuffs") do -- TODO: Add Debuffs
         local sv = db.profile.auras[barName]; ---@type Observer
         sv:SetParent(db.profile.auras.__templateAuraArea);
     end
