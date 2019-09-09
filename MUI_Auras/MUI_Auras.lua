@@ -60,7 +60,7 @@ db:AddToDefaults("profile.auras", {
 
 local function AuraButton_OnUpdate(self)
     local _, _, count, _, _, expirationTime, _, _, _,
-        _, _, _, _, _, timeMod = UnitAura("player", self.id, "HELPFUL");
+        _, _, _, _, _, timeMod = UnitAura("player", self:GetID(), "HELPFUL");
 
     if (not (count and expirationTime)) then
         return;
@@ -88,7 +88,7 @@ local function AuraButton_OnUpdate(self)
 end
 
 local function AuraEnchantButton_OnUpdate(self, globalName)
-    local id = self.id;
+    local id = self:GetID();
     local index = tk.Tables:IndexOf(enchantAuraIds, id);
     local hasEnchant, expirationTime, count = select(ARGS_PER_ITEM * (index - 1) + 1, GetWeaponEnchantInfo());
 
@@ -126,9 +126,9 @@ local function AuraButton_OnEnter(self)
     GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", 0, 0);
 
     if (not self.filter) then
-        GameTooltip:SetInventoryItem("player", self.id);
+        GameTooltip:SetInventoryItem("player", self:GetID());
     else
-        GameTooltip:SetUnitAura("player", self.id, self.filter);
+        GameTooltip:SetUnitAura("player", self:GetID(), self.filter);
     end
 
     GameTooltip:Show();
@@ -184,7 +184,7 @@ local function AuraArea_OnEvent(_, _, buttons, totalAuras, filter)
         local hasEnchant = select(ARGS_PER_ITEM * (index - 1) + 1, GetWeaponEnchantInfo());
         local btn = buttons[index];
         local iconTexture;
-        btn.id = enchantAuraIds[index];
+        btn:SetID(enchantAuraIds[index]);
         btn:SetAttribute("type2", nil);
         btn:SetAttribute("cancelaura", nil);
 
@@ -202,7 +202,7 @@ local function AuraArea_OnEvent(_, _, buttons, totalAuras, filter)
         local buttonIndex = auraID + totalActiveEnchants;
         local btn = buttons[buttonIndex];
         local name, iconTexture = UnitAura("player", auraID, filter);
-        btn.id = auraID;
+        btn:SetID(auraID);
         btn:SetAttribute("type2", "cancelaura");
         btn:SetAttribute("cancelaura", "player", auraID);
         SetAuraButtonIconTexture(btn, name and iconTexture);
@@ -217,7 +217,7 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons)
         if (self.timeSinceLastUpdate > 1 or btn.forceUpdate) then
             btn.forceUpdate = nil;
 
-            if (tk.Tables:Contains(enchantAuraIds, btn.id)) then
+            if (tk.Tables:Contains(enchantAuraIds, btn:GetID())) then
                 AuraEnchantButton_OnUpdate(btn, self:GetName());
             else
                 AuraButton_OnUpdate(btn);
