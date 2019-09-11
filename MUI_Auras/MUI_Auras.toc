@@ -4,3 +4,4 @@
 ## OptionalDeps: MUI_Config
 
 MUI_Auras.lua
+MUI_Auras.config.lua

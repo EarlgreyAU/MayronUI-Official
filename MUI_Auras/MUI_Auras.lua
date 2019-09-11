@@ -1,12 +1,15 @@
+local _, namespace = ...;
+
 -- luacheck: ignore self 143
 local _G, MayronUI = _G, _G.MayronUI;
 local tk, db, em, _, obj = MayronUI:GetCoreComponents();
 
-local GetTime, SecondsToTimeAbbrev, GetWeaponEnchantInfo, select, UnitAura, pairs, ipairs,
+local GetTime, select, SecondsToTimeAbbrev, GetWeaponEnchantInfo, UnitAura, pairs, ipairs,
     CreateFrame, GameTooltip, unpack, math, GetInventoryItemTexture, string, BUFF_MAX_DISPLAY,
-    DEBUFF_MAX_DISPLAY, UIParent = _G.GetTime, _G.SecondsToTimeAbbrev, _G.GetWeaponEnchantInfo,
-    _G.select, _G.UnitAura, _G.pairs, _G.ipairs, _G.CreateFrame, _G.GameTooltip, _G.unpack, _G.math,
-    _G.GetInventoryItemTexture, _G.string, _G.BUFF_MAX_DISPLAY, _G.DEBUFF_MAX_DISPLAY, _G.UIParent;
+    DEBUFF_MAX_DISPLAY, UIParent, InCombatLockdown, table, CancelUnitBuff = _G.GetTime, _G.select,
+    _G.SecondsToTimeAbbrev, _G.GetWeaponEnchantInfo, _G.UnitAura, _G.pairs, _G.ipairs, _G.CreateFrame,
+    _G.GameTooltip, _G.unpack, _G.math,_G.GetInventoryItemTexture, _G.string, _G.BUFF_MAX_DISPLAY,
+    _G.DEBUFF_MAX_DISPLAY, _G.UIParent, _G.InCombatLockdown, _G.table, _G.CancelUnitBuff;
 
 -- Main-Hand, Off-Hand, Ranged
 local enchantAuraIds = { 16, 17, 18 };
@@ -15,13 +18,13 @@ local ARGS_PER_ITEM = 4;
 -- Objects -----------------------------
 
 --TODO: Make configurable
---TODO: Disable cancelling auras in combat
 
 ---@type Engine
 local Engine = obj:Import("MayronUI.Engine");
 
 ---@class AurasModule : BaseModule
 local C_AurasModule = MayronUI:RegisterModule("AurasModule", "Auras (Buffs & Debuffs)");
+namespace.C_AurasModule = C_AurasModule;
 
 ---@class C_AuraArea : Object
 local C_AuraArea = Engine:CreateClass("AuraArea", "Framework.System.FrameWrapper");
@@ -94,21 +97,16 @@ end
 ---@param totalAuras number
 ---@param filter string
 local function AuraArea_OnEvent(_, _, auraArea, data, totalAuras, filter)
-    if (data.enchantButtons) then
+    if (data.settings.showEnchants) then
         local totalArgs = select("#", GetWeaponEnchantInfo());
         local totalEnchantItems = totalArgs / ARGS_PER_ITEM;
 
         -- check weapon enchant auras:
-        for index = 1, totalEnchantItems do -- TODO: Will this iterate over all 3 and disable them appropriately?
+        for index = 1, totalEnchantItems do
             local hasEnchant = select(ARGS_PER_ITEM * (index - 1) + 1, GetWeaponEnchantInfo());
             local btn = data.enchantButtons[index];
-            local iconTexture;
 
-            if (hasEnchant) then
-                iconTexture = GetInventoryItemTexture("player", btn:GetID());
-            end
-
-            UpdateIconTexture(btn, iconTexture);
+            UpdateIconTexture(btn, hasEnchant and GetInventoryItemTexture("player", btn:GetID()));
         end
     end
 
@@ -132,7 +130,7 @@ end
 
 local function AuraButton_OnUpdate(self)
     local _, _, count, _, _, expirationTime, _, _, _,
-        _, _, _, _, _, timeMod = UnitAura("player", self:GetID(), "HELPFUL");
+        _, _, _, _, _, timeMod = UnitAura("player", self:GetID(), self.filter);
 
     if (not count or count < 1) then
         self.countText:SetText(tk.Strings.Empty);
@@ -211,7 +209,7 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons, enchantButtons)
         end
     end
 
-    if (enchantButtons ~= nil) then
+    if (enchantButtons) then
         for _, btn in ipairs(enchantButtons) do
             AuraEnchantButton_OnUpdate(self, btn, self:GetName());
         end
@@ -224,16 +222,26 @@ end
 
 -- Stack ---------------------------
 
+local function CancelAura(self)
+    if (InCombatLockdown()) then
+        return; -- cannot cancel buffs in combat due to protected blizzard utf8.codepoint(
+    end
+
+    if (self.filter) then
+        -- it is a standard aura
+        CancelUnitBuff("player", self:GetID(), self.filter);
+    end
+end
+
 auraStack:OnNewItem(function(parent, auraID, settings, filter)
-    local btn = CreateFrame("Button", nil, parent, "SecureActionButtonTemplate");
+    local btn = CreateFrame("Button", nil, parent);
     btn:SetSize(settings.auraSize, settings.auraSize);
     btn:SetID(auraID);
     btn.filter = filter;
 
     if (filter == "HELPFUL") then
         btn:RegisterForClicks("RightButtonUp");
-        btn:SetAttribute("type2", "cancelaura");
-        btn:SetAttribute("cancelaura", "player", auraID);
+        btn:SetScript("OnClick", CancelAura)
         tk:SetBackground(btn, unpack(settings.colors.aura));
     end
 
@@ -267,11 +275,10 @@ function C_AuraArea:__Construct(data, moduleSettings, areaName)
     data.settings = moduleSettings[areaName];
     data.globalName = string.format("MUI_%sArea", areaName);
     data.auraButtons = obj:PopTable();
+    data.enchantButtons = false;
 
     if (data.settings.showEnchants) then
         data.enchantButtons = obj:PopTable();
-    else
-        data.enchantButtons = false; -- needs to be false to be included in event
     end
 end
 
@@ -340,7 +347,19 @@ function C_AuraArea:SetEnabled(data, enabled)
 end
 
 local function SortByTimeRemaining(a, b)
-    if (not (a and b and a.timeRemaining and b.timeRemaining)) then
+    if (not (a and b)) then
+        return true;
+    end
+
+    if (not a.timeRemaining and b.timeRemaining) then
+        return true;
+    end
+
+    if (a.timeRemaining and not b.timeRemaining) then
+        return false;
+    end
+
+    if (not a.timeRemaining and not b.timeRemaining) then
         return false;
     end
 
@@ -361,7 +380,7 @@ function C_AuraArea:RefreshAnchors(data)
 
     table.sort(activeButons, SortByTimeRemaining);
 
-    if (data.settings.showEnchants) then
+    if (data.enchantButtons) then
         for id, enchantBtn in ipairs(data.enchantButtons) do
             enchantBtn:ClearAllPoints();
 
@@ -404,7 +423,7 @@ end
 function C_AurasModule:OnInitialize(data)
     data.auraAreas = obj:PopTable();
 
-    for _, barName in obj:IterateArgs("Buffs") do -- TODO: Add Debuffs
+    for _, barName in obj:IterateArgs("Buffs", "Debuffs") do -- TODO: Add Debuffs
         local sv = db.profile.auras[barName]; ---@type Observer
         sv:SetParent(db.profile.auras.__templateAuraArea);
     end
