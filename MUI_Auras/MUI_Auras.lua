@@ -17,8 +17,6 @@ local ARGS_PER_ITEM = 4;
 
 -- Objects -----------------------------
 
---TODO: Make configurable
-
 ---@type Engine
 local Engine = obj:Import("MayronUI.Engine");
 
@@ -38,33 +36,45 @@ local auraStack = Stack:Of("Button")();
 db:AddToDefaults("profile.auras", {
     __templateAuraArea = {
         enabled       = true;
-        unlocked      = false;
-        position      = {"CENTER", "UIParent", "CENTER", 0,  0};
-        colSpacing    = 4;
-        rowSpacing    = 16;
-        perRow        = 16;
-        growDirection = "LEFT";
-        showEnchants  = false;
-        auraSize      = 32;
-        borderSize    = 1;
-        colors = {
-            enchant = {0.53, 0.23, 0.78};
-        }
+        placement = {
+            position      = {"CENTER", "UIParent", "CENTER", 0,  0};
+            colSpacing    = 4;
+            rowSpacing    = 16;
+            perRow        = 16;
+            growDirection = "LEFT";
+        };
+        appearance = {
+            auraSize      = 32;
+            borderSize    = 1;
+            timeRemainingFontSize = 10;
+            colors = {
+                enchant = {0.53, 0.23, 0.78};
+            }
+        };
     };
     Buffs = {
-        position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
-        auraType = "Buffs";
-        showEnchants = true;
-        colors = {
-            aura = {0, 0, 0};
+        placement = {
+            position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
+        };
+        appearance = {
+            colors = {
+                aura = {0, 0, 0};
+            }
         }
     };
 
     Debuffs = {
-        position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
-        auraType = "Debuffs";
-        colors = {
-            aura = {0.7, 0.2, 0.2};
+        placement = {
+            position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
+        };
+        appearance = {
+            colors = {
+                aura    = {0.76, 0.2, 0.2};
+                magic   = {0.2, 0.6, 1};
+                disease = {0.6, 0.4, 0};
+                poison  = {0.0, 0.6, 0};
+                curse   = {0.6, 0.0, 1};
+            }
         }
     };
 });
@@ -83,6 +93,29 @@ local function AuraButton_OnEnter(self)
     GameTooltip:Show();
 end
 
+local function UpdateAuraButtonAppearance(appearance, btn)
+    local _, _, _, debuffType = UnitAura("player", btn:GetID(), btn.filter);
+    local color = appearance.colors.aura;
+
+    if (btn.filter == "HARMFUL") then
+        if (debuffType) then
+            color = appearance.colors[debuffType:lower()];
+        end
+    elseif (not btn.filter) then
+        color = appearance.colors.enchant;
+    end
+
+    if (obj:IsTable(color)) then
+        btn.background:SetVertexColor(unpack(color));
+    end
+
+    tk:SetFontSize(btn.timeRemainingText, appearance.timeRemainingFontSize);
+    btn:SetSize(appearance.auraSize, appearance.auraSize);
+
+    btn.iconTexture:SetPoint("TOPLEFT", appearance.borderSize, -appearance.borderSize);
+    btn.iconTexture:SetPoint("BOTTOMRIGHT", -appearance.borderSize, appearance.borderSize);
+end
+
 local function UpdateIconTexture(btn, iconTexture)
     if (iconTexture) then
         btn.iconTexture:SetTexture(iconTexture);
@@ -97,7 +130,7 @@ end
 ---@param totalAuras number
 ---@param filter string
 local function AuraArea_OnEvent(_, _, auraArea, data, totalAuras, filter)
-    if (data.settings.showEnchants) then
+    if (data.enchantButtons) then
         local totalArgs = select("#", GetWeaponEnchantInfo());
         local totalEnchantItems = totalArgs / ARGS_PER_ITEM;
 
@@ -111,7 +144,7 @@ local function AuraArea_OnEvent(_, _, auraArea, data, totalAuras, filter)
     end
 
     for auraID = 1, totalAuras do
-        local name, iconTexture = UnitAura("player", auraID, filter);
+        local name, iconTexture, _, debuffType = UnitAura("player", auraID, filter);
         local btn = data.auraButtons[auraID];
 
         if (name and iconTexture) then
@@ -121,6 +154,18 @@ local function AuraArea_OnEvent(_, _, auraArea, data, totalAuras, filter)
 
         if (btn) then
             UpdateIconTexture(btn, name and iconTexture);
+
+            if (filter == "HARMFUL") then
+                local color = data.settings.appearance.colors.aura;
+
+                if (debuffType) then
+                    color = data.settings.appearance.colors[debuffType:lower()];
+                end
+
+                if (obj:IsTable(color)) then
+                    btn.background:SetVertexColor(unpack(color));
+                end
+            end
         end
     end
 
@@ -235,35 +280,33 @@ end
 
 auraStack:OnNewItem(function(parent, auraID, settings, filter)
     local btn = CreateFrame("Button", nil, parent);
-    btn:SetSize(settings.auraSize, settings.auraSize);
     btn:SetID(auraID);
     btn.filter = filter;
 
     if (filter == "HELPFUL") then
         btn:RegisterForClicks("RightButtonUp");
         btn:SetScript("OnClick", CancelAura)
-        tk:SetBackground(btn, unpack(settings.colors.aura));
     end
 
     if (not filter) then
-        tk:SetBackground(btn, unpack(settings.colors.enchant));
+        btn.background = tk:SetBackground(btn, unpack(settings.appearance.colors.enchant));
     elseif (filter == "HELPFUL" or filter == "HARMFUL") then
-        tk:SetBackground(btn, unpack(settings.colors.aura));
+        btn.background = tk:SetBackground(btn, unpack(settings.appearance.colors.aura));
     end
 
     btn:SetScript("OnEnter", AuraButton_OnEnter);
     btn:SetScript("OnLeave", tk.GeneralTooltip_OnLeave);
 
     btn.iconTexture = btn:CreateTexture(nil, "ARTWORK");
-    btn.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-    btn.iconTexture:SetPoint("TOPLEFT", 1, -1);
-    btn.iconTexture:SetPoint("BOTTOMRIGHT", -1, 1);
+    btn.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9);
 
     btn.countText = btn:CreateFontString(nil, "OVERLAY", "NumberFontNormal");
     btn.countText:SetPoint("BOTTOMRIGHT", 0, 2);
 
     btn.timeRemainingText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
     btn.timeRemainingText:SetPoint("TOP", btn, "BOTTOM", 0, -2);
+
+    UpdateAuraButtonAppearance(settings.appearance, btn);
 
     return btn;
 end);
@@ -277,25 +320,27 @@ function C_AuraArea:__Construct(data, moduleSettings, areaName)
     data.auraButtons = obj:PopTable();
     data.enchantButtons = false;
 
-    if (data.settings.showEnchants) then
+    if (areaName == "Buffs") then
         data.enchantButtons = obj:PopTable();
     end
 end
 
 Engine:DefineParams("boolean")
-function C_AuraArea:SetEnabled(data, enabled)
+function C_AuraArea:SetEnabled(data, enabled, areaName)
     if (not data.frame and not enabled) then
         return;
     end
 
+    local a = data.settings.appearance;
+    local p = data.settings.placement;
+
     if (enabled) then
         if (not data.frame) then
-            data.frame = CreateFrame("Frame", data.globalName, UIParent);
+            data.frame = CreateFrame("Frame", data.globalName);
 
             local totalAuras, filter, maxColumns;
-            local s = data.settings;
 
-            if (data.settings.auraType == "Buffs") then
+            if (areaName == "Buffs") then
                 totalAuras = BUFF_MAX_DISPLAY;
                 filter = "HELPFUL";
             else
@@ -303,28 +348,26 @@ function C_AuraArea:SetEnabled(data, enabled)
                 filter = "HARMFUL";
             end
 
-            if (data.settings.showEnchants) then
+            if (data.enchantButtons) then
                 for index, enchantID in ipairs(enchantAuraIds) do
                     data.enchantButtons[index] = auraStack:Pop(data.frame, enchantID, data.settings, false);
                     data.enchantButtons[index]:Hide();
                 end
 
-                maxColumns = math.ceil((totalAuras + 1) / s.perRow);
+                data.maxColumns = math.ceil((totalAuras + 1) / p.perRow);
             else
-                maxColumns = math.ceil((totalAuras) / s.perRow);
+                data.maxColumns = math.ceil((totalAuras) / p.perRow);
             end
 
             data.frame:SetSize(
-                ((s.auraSize + s.colSpacing) * s.perRow) - s.colSpacing,
-                ((s.auraSize + s.rowSpacing) * maxColumns) - s.rowSpacing);
-
-            data.frame:SetPoint(unpack(s.position));
+                ((a.auraSize + p.colSpacing) * p.perRow) - p.colSpacing,
+                ((a.auraSize + p.rowSpacing) * data.maxColumns) - p.rowSpacing);
 
             -- Can I shorten this?
             em:CreateUnitEventHandlerWithKey("UNIT_AURA", data.globalName.."Handler", AuraArea_OnEvent, "Player")
                 :SetCallbackArgs(self, data, totalAuras, filter)
                 :AppendEvent("GROUP_ROSTER_UPDATE")
-                :AppendEvent("PLAYER_ENTERING_WORLD")
+                :AppendEvent("PLAYER_ENTERING_WORLD");
         end
 
         data.frame.timeSinceLastUpdate = 0;
@@ -332,12 +375,11 @@ function C_AuraArea:SetEnabled(data, enabled)
             AuraArea_OnUpdate(self, elapsed, data.auraButtons, data.enchantButtons);
         end);
 
-        -- Hide Blizzard frames
-        tk:KillElement(_G.BuffFrame);
-        tk:KillElement(_G.TemporaryEnchantFrame);
+        data.frame:SetParent(UIParent);
+        data.frame:SetPoint(unpack(p.position));
     else
-        data.frame:SetScript("OnUpdate", nil);
         em:DestroyEventHandlerByKey(data.globalName.."Handler");
+        data.frame:SetScript("OnUpdate", nil);
         data.frame:SetParent(tk.Constants.DUMMY_FRAME);
         data.frame:SetAllPoints(tk.Constants.DUMMY_FRAME);
     end
@@ -369,6 +411,7 @@ end
 function C_AuraArea:RefreshAnchors(data)
     local totalPositioned = 0;
     local activeButons = obj:PopTable();
+    local p = data.settings.placement;
 
     for _, auraBtn in ipairs(data.auraButtons) do
         auraBtn:ClearAllPoints();
@@ -396,21 +439,20 @@ function C_AuraArea:RefreshAnchors(data)
         end
 
         if (id == 1) then
-            if (data.settings.growDirection == "LEFT") then
+            if (p.growDirection == "LEFT") then
                 auraBtn:SetPoint("TOPRIGHT");
-            elseif (data.settings.growDirection == "RIGHT") then
+            elseif (p.growDirection == "RIGHT") then
                 auraBtn:SetPoint("TOPLEFT");
             end
 
-        elseif (totalPositioned % data.settings.perRow == 0) then
-            local anchor = activeButons[(totalPositioned - data.settings.perRow) + 1];
-            auraBtn:SetPoint("TOP", anchor, "BOTTOM", 0, -data.settings.rowSpacing);
-        else
-            if (data.settings.growDirection == "LEFT") then
-                auraBtn:SetPoint("RIGHT", activeButons[id - 1], "LEFT", -data.settings.colSpacing, 0);
-            elseif (data.settings.growDirection == "RIGHT") then
-                auraBtn:SetPoint("LEFT", activeButons[id - 1], "RIGHT", data.settings.colSpacing, 0);
-            end
+        elseif (totalPositioned % p.perRow == 0) then
+            local anchor = activeButons[(totalPositioned - p.perRow) + 1];
+            auraBtn:SetPoint("TOP", anchor, "BOTTOM", 0, -p.rowSpacing);
+
+        elseif (p.growDirection == "LEFT") then
+            auraBtn:SetPoint("RIGHT", activeButons[id - 1], "LEFT", -p.colSpacing, 0);
+        elseif (p.growDirection == "RIGHT") then
+            auraBtn:SetPoint("LEFT", activeButons[id - 1], "RIGHT", p.colSpacing, 0);
         end
 
         totalPositioned = totalPositioned + 1;
@@ -419,13 +461,57 @@ function C_AuraArea:RefreshAnchors(data)
     obj:PushTable(activeButons);
 end
 
+function C_AuraArea:UpdateAppearance(data)
+    local a = data.settings.appearance;
+    local p = data.settings.placement;
+
+    for _, btn in ipairs(data.auraButtons) do
+        if (btn:IsShown()) then
+            UpdateAuraButtonAppearance(a, btn);
+        end
+    end
+
+    if (data.enchantButtons) then
+        for _, btn in ipairs(data.enchantButtons) do
+            if (btn:IsShown()) then
+                UpdateAuraButtonAppearance(a, btn);
+            end
+        end
+    end
+
+    data.frame:SetSize(
+        ((a.auraSize + p.colSpacing) * p.perRow) - p.colSpacing,
+        ((a.auraSize + p.rowSpacing) * data.maxColumns) - p.rowSpacing);
+end
+
 -- C_AurasModule -----------------------
 function C_AurasModule:OnInitialize(data)
     data.auraAreas = obj:PopTable();
 
-    for _, barName in obj:IterateArgs("Buffs", "Debuffs") do -- TODO: Add Debuffs
+    for _, barName in obj:IterateArgs("Buffs", "Debuffs") do
         local sv = db.profile.auras[barName]; ---@type Observer
         sv:SetParent(db.profile.auras.__templateAuraArea);
+    end
+
+    local function RefreshAnchors(_, keyName, auraArea, areaName)
+        if (auraArea) then
+            local settingName = keyName:PopFront();
+
+            if (settingName == "position") then
+                local frame = auraArea:GetFrame();
+                frame:ClearAllPoints();
+                frame:SetPoint(unpack(data.settings[areaName].placement.position));
+            else
+                auraArea:RefreshAnchors();
+            end
+
+        end
+    end
+
+    local function UpdateAppearance(_, _, auraArea, areaName)
+        if (auraArea) then
+            auraArea:UpdateAppearance();
+        end
     end
 
     local options = {
@@ -434,12 +520,18 @@ function C_AurasModule:OnInitialize(data)
                 "Buffs.enabled";
                 "Debuffs.enabled";
             };
+            ignore = {
+                "position", "colSpacing", "rowSpacing", "growDirection", "perRow",
+                "auraSize", "borderSize", "colors", "timeRemainingFontSize"
+            };
         };
         groups = {
             {
-                patterns = { "^%a+%.enabled$" };
-                value = function(value, keysList)
+                patterns = { ".*" }; -- (i.e. "Buffs.<setting>")
+
+                onPre = function(value, keysList)
                     local auraAreaName = keysList:PopFront();
+                    keysList:PopFront();
                     local auraArea = data.auraAreas[auraAreaName]; ---@type C_AuraArea
 
                     if (value and not auraArea) then
@@ -447,26 +539,27 @@ function C_AurasModule:OnInitialize(data)
                         data.auraAreas[auraAreaName] = auraArea;
                     end
 
-                    if (auraArea) then
-                        auraArea:SetEnabled(value);
-                    end
+                    return auraArea, auraAreaName;
                 end;
+
+                value = {
+                    enabled = function(value, _, auraArea, areaName)
+                        if (auraArea) then
+                            auraArea:SetEnabled(value, areaName);
+                        end
+                    end;
+                    placement = RefreshAnchors;
+                    appearance = UpdateAppearance;
+                }
             };
         };
     };
 
-    self:RegisterUpdateFunctions(db.profile.auras, {
-        appearance = {
-            texture = function(value)
-                local auraAreaData;
+    self:RegisterUpdateFunctions(db.profile.auras, {}, options);
 
-                for _, auraArea in pairs(data.auraAreas) do
-                    auraAreaData = data:GetFriendData(auraArea);
-                    auraAreaData.frame.statusbar:SetStatusBarTexture(tk.Constants.LSM:Fetch("statusbar", value));
-                end
-            end;
-        }
-    }, options);
+    -- Hide Blizzard frames
+    tk:KillElement(_G.BuffFrame);
+    tk:KillElement(_G.TemporaryEnchantFrame);
 
     self:SetEnabled(true);
 end

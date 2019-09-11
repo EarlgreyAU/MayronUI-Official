@@ -3,7 +3,7 @@ local _, namespace = ...;
 
 local _G = _G;
 local tonumber, ipairs, MayronUI = _G.tonumber, _G.ipairs, _G.MayronUI;
-local tk, db, _, _, _, L = MayronUI:GetCoreComponents();
+local tk, db, _, _, obj, L = MayronUI:GetCoreComponents();
 local C_AurasModule = namespace.C_AurasModule;
 
 -- contains auraarea name / table pairs where each table holds the 5 config textfield widgets
@@ -45,6 +45,11 @@ function C_AurasModule:GetConfigTable()
                         type = "submenu",
                         name = name;
                         dbPath = dbPath,
+
+                        OnLoad = function()
+                            position_TextFields[name] = obj:PopTable();
+                        end;
+
                         children = {
                             {   name = "Enabled",
                                 type = "check",
@@ -98,7 +103,7 @@ function C_AurasModule:GetConfigTable()
                                     end
 
                                     local positions = tk.Tables:GetFramePosition(auraArea);
-                                    db:SetPathValue(dbPath .. ".position", positions);
+                                    db:SetPathValue(dbPath .. ".placement.position", positions);
 
                                     AuraArea_OnDragStop(auraArea);
                                     savePositionButtons[name]:SetEnabled(false);
@@ -106,45 +111,52 @@ function C_AurasModule:GetConfigTable()
                             };
                             {   type = "divider"
                             },
+                            {   name = "Growth Direction",
+                                type = "dropdown",
+                                appendDbPath = "placement.growDirection",
+                                options = { Left = "LEFT", Right = "RIGHT" }
+                            },
+                            {   type = "divider"
+                            },
                             {   name = "Max per Row",
                                 type = "slider",
-                                min = 5,
+                                appendDbPath = "placement.perRow",
+                                min = 1,
                                 max = _G.BUFF_MAX_DISPLAY,
                                 step = 1,
                             },
-                            {   name = "Growth Direction",
-                                type = "dropdown",
-                                appendDbPath = "growDirection",
-                                options = { "Left", "Right" }
-                            },
-                            {   name = "Show Enchants", -- should be for buffs only
-                                type = "check",
-                                appendDbPath = "showEnchants",
-                            },
                             {   name = "Aura Size",
                                 type = "slider",
-                                appendDbPath = "auraSize",
-                                min = 20,
+                                appendDbPath = "appearance.auraSize",
+                                min = 30,
                                 max = 100,
+                                step = 1,
+                            },
+                            {   name = "Time Remaining Font Size",
+                                type = "slider",
+                                appendDbPath = "appearance.timeRemainingFontSize",
+                                width = 200,
+                                min = 4,
+                                max = 30,
                                 step = 1,
                             },
                             {   name = "Border Size",
                                 type = "slider",
-                                appendDbPath = "borderSize",
+                                appendDbPath = "appearance.borderSize",
                                 min = 1,
                                 max = 5,
                                 step = 1,
                             },
                             {   name = "Column Spacing",
                                 type = "slider",
-                                appendDbPath = "colSpacing",
+                                appendDbPath = "placement.colSpacing",
                                 min = 1,
                                 max = 50,
                                 step = 1,
                             },
                             {   name = "Row Spacing",
                                 type = "slider",
-                                appendDbPath = "rowSpacing",
+                                appendDbPath = "placement.rowSpacing",
                                 min = 1,
                                 max = 50,
                                 step = 1,
@@ -159,7 +171,7 @@ function C_AurasModule:GetConfigTable()
                                         name = arg;
                                         type = "textfield";
                                         valueType = "string";
-                                        dbPath = tk.Strings:Concat(dbPath, ".position[", index, "]");
+                                        dbPath = tk.Strings:Concat(dbPath, ".placement.position[", index, "]");
                                         auraAreaName = name;
                                         OnLoad = AuraAreaPosition_OnLoad;
                                     };
@@ -168,51 +180,59 @@ function C_AurasModule:GetConfigTable()
                             {   name = "Colors",
                                 type = "title",
                             },
-                            {   name = "Buff Border",
+                            {   name = "Basic " .. name,
                                 type = "color",
-                                appendDbPath = "colors.aura"
-                            },
-                            {   name = "Enchant Border",
-                                type = "color",
-                                appendDbPath = "colors.enchant"
+                                width = 200;
+                                useIndexes = true;
+                                appendDbPath = "appearance.colors.aura"
                             },
                         }
                     };
 
                     if (name == "Debuffs") then
                         local debuffColors = {
-                            {   name = "Magic Debuff Color";
+                            {   name = "Magic Debuff";
                                 type = "color";
-                                width = 220;
+                                width = 200;
                                 useIndexes = true;
-                                hasOpacity = true;
-                                dbPath = "profile.colors.magic";
+                                appendDbPath = "appearance.colors.magic";
                             };
-                            {   name = "Disease Debuff Color";
+                            {   name = "Disease Debuff";
                                 type = "color";
-                                width = 220;
+                                width = 200;
                                 useIndexes = true;
-                                hasOpacity = true;
-                                dbPath = "profile.colors.disease";
+                                appendDbPath = "appearance.colors.disease";
                             };
-                            {   name = "Poison Debuff Color";
+                            {   name = "Poison Debuff";
                                 type = "color";
-                                width = 220;
+                                width = 200;
                                 useIndexes = true;
-                                hasOpacity = true;
-                                dbPath = "profile.colors.poison";
+                                appendDbPath = "appearance.colors.poison";
                             };
-                            {   name = "Curse Debuff Color";
+                            {   name = "Curse Debuff";
                                 type = "color";
-                                width = 220;
+                                width = 200;
                                 useIndexes = true;
-                                hasOpacity = true;
-                                dbPath = "profile.colors.curse";
+                                appendDbPath = "appearance.colors.curse";
                             };
                         };
 
-                        table.insert(tbl.children, debuffColors);
+                        for _, value in ipairs(debuffColors) do
+                            table.insert(tbl.children, value);
+                        end
+
+                        obj:PushTable(debuffColors);
+                    else
+                        table.insert(tbl.children, {
+                            name = "Enchant Border",
+                            type = "color",
+                            width = 200;
+                            useIndexes = true;
+                            appendDbPath = "appearance.colors.enchant"
+                        });
                     end
+
+                    return tbl;
                 end;
             };
         }

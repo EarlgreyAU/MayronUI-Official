@@ -12,8 +12,7 @@ MayronUI:Hook("SideBarModule", "OnInitialize", function(sideBarModule)
     MayronUI:ImportModule("QuestTrackerModule"):Initialize(sideBarModule);
 end);
 
-local QuestWatchFrame, IsInInstance, UIParent, hooksecurefunc, ipairs =
-    _G.QuestWatchFrame, _G.IsInInstance, _G.UIParent, _G.hooksecurefunc, _G.ipairs;
+local QuestWatchFrame, UIParent = _G.QuestWatchFrame, _G.UIParent;
 
 db:AddToDefaults("profile.questTracker", {
     enabled = true;
