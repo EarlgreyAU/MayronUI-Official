@@ -224,7 +224,7 @@ function C_AurasModule:GetConfigTable()
                         obj:PushTable(debuffColors);
                     else
                         table.insert(tbl.children, {
-                            name = "Enchant Border",
+                            name = "Weapon Enchants",
                             type = "color",
                             width = 200;
                             useIndexes = true;

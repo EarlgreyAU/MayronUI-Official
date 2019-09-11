@@ -4,6 +4,9 @@ local _G, LibStub = _G, _G.LibStub;
 
 MayronUI = {};
 
+-- remove the Shaman Pink class color back to retail.
+_G.RAID_CLASS_COLORS["SHAMAN"] = _G.CreateColor(0.0, 0.44, 0.87);
+
 local MigrateToGen6;
 local table, ipairs, select, string, unpack, print = _G.table, _G.ipairs, _G.select, _G.string, _G.unpack, _G.print;
 local IsAddOnLoaded, EnableAddOn, LoadAddOn, DisableAddOn, ReloadUI = _G.IsAddOnLoaded, _G.EnableAddOn, _G.LoadAddOn, _G.DisableAddOn, _G.ReloadUI;
