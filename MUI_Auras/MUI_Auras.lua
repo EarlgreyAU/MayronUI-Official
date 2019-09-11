@@ -172,6 +172,51 @@ local function AuraArea_OnEvent(_, _, auraArea, data, totalAuras, filter)
     auraArea:RefreshAnchors();
 end
 
+local function AuraButton_UpdateAlpha(self, elapsed)
+    self.flashTime = (self.flashTime or 0) - elapsed;
+
+    if (self.flashTime < 0) then
+        local overtime = -self.flashTime;
+
+        if (self.isFlashing == 0) then
+            self.isFlashing = 1;
+            self.flashTime = _G.BUFF_FLASH_TIME_ON;
+        else
+            self.isFlashing = 0;
+            self.flashTime = _G.BUFF_FLASH_TIME_OFF;
+        end
+
+        if (overtime < self.flashTime) then
+            self.flashTime = self.flashTime - overtime;
+        end
+    end
+
+    local expirationTime = select(6, UnitAura("player", self:GetID(), self.filter));
+
+    if (not expirationTime or expirationTime <= 0) then
+        self:SetAlpha(1);
+        return;
+    end
+
+    local timeRemaining = expirationTime - GetTime();
+
+    -- Handle flashing
+    if (timeRemaining and timeRemaining < _G.BUFF_WARNING_TIME) then
+        local alphaValue;
+
+        if (self.isFlashing == 1) then
+            alphaValue = (_G.BUFF_FLASH_TIME_ON - self.flashTime) / _G.BUFF_FLASH_TIME_ON;
+        else
+            alphaValue = self.flashTime / _G.BUFF_FLASH_TIME_ON;
+        end
+
+        alphaValue = (alphaValue * (1 - _G.BUFF_MIN_ALPHA)) + _G.BUFF_MIN_ALPHA;
+
+        self:SetAlpha(alphaValue);
+    else
+        self:SetAlpha(1.0);
+    end
+end
 
 local function AuraButton_OnUpdate(self)
     local _, _, count, _, _, expirationTime, _, _, _,
@@ -248,6 +293,10 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons, enchantButtons)
     self.timeSinceLastUpdate = self.timeSinceLastUpdate + elapsed;
 
     for _, btn in ipairs(auraButtons) do
+        if (btn.filter == "HELPFUL") then
+            AuraButton_UpdateAlpha(btn, elapsed);
+        end
+
         if (self.timeSinceLastUpdate > 1 or btn.forceUpdate) then
             btn.forceUpdate = nil;
             AuraButton_OnUpdate(btn);
@@ -508,7 +557,7 @@ function C_AurasModule:OnInitialize(data)
         end
     end
 
-    local function UpdateAppearance(_, _, auraArea, areaName)
+    local function UpdateAppearance(_, _, auraArea)
         if (auraArea) then
             auraArea:UpdateAppearance();
         end
