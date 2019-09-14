@@ -3,5 +3,6 @@
 ## Dependencies: MUI_Core
 ## OptionalDeps: MUI_Config
 
+Aura.lua
 MUI_Auras.lua
 MUI_Auras.config.lua
