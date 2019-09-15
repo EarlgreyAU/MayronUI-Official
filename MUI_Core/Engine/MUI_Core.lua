@@ -98,6 +98,7 @@ db:AddToDefaults("global", {
                 {"Recount", true, "Recount"};
                 {"Shadowed Unit Frames", true, "ShadowedUnitFrames"};
                 {"TipTac", true, "TipTac"};
+                {"Leatrix Plus", true, "Leatrix_Plus"};
             };
         };
     };

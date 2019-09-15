@@ -2,6 +2,7 @@
 ## Title: |cff00ccffMUI|r Chat
 ## Dependencies: MUI_Core
 ## OptionalDeps: MUI_Config
+## Notes: Shows the MayronUI chat frame artwork and adds features to the standard Blizzard chat frame.
 
 MUI_Chat.lua
 

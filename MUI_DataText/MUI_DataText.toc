@@ -2,6 +2,7 @@
 ## Title: |cff00ccffMUI|r DataText
 ## Dependencies: MUI_Core
 ## OptionalDeps: MUI_Config
+## Notes: Shows special data text information at the bottom of MayronUI
 
 MUI_DataText.lua
 
