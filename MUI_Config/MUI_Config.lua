@@ -275,24 +275,28 @@ function C_ConfigModule:RenderSelectedMenu(data, menuConfigTable)
     data.tempMenuConfigTable = menuConfigTable;
 
     for _, widgetConfigTable in pairs(menuConfigTable.children) do
-        if (widgetConfigTable.type == "loop") then
+        if (widgetConfigTable.type == "loop" or widgetConfigTable.type == "condition") then
 
             -- run the loop to gather widget children
-            local loopResults = namespace.WidgetHandlers.loop(data.selectedButton.menu:GetFrame(), widgetConfigTable);
+            local results = namespace.WidgetHandlers[widgetConfigTable.type](
+                data.selectedButton.menu:GetFrame(), widgetConfigTable);
 
-            for _, result in ipairs(loopResults) do
-
-                if (not result.type and #result > 1) then
-                    for _, subWidgetConfigTable in ipairs(result) do
-                        data.selectedButton.menu:AddChildren(self:SetUpWidget(subWidgetConfigTable));
+            if (obj:IsTable(results)) then
+                for _, result in ipairs(results) do
+                    if (obj:IsTable(result)) then
+                        if (not result.type and #result > 1) then
+                            for _, subWidgetConfigTable in ipairs(result) do
+                                data.selectedButton.menu:AddChildren(self:SetUpWidget(subWidgetConfigTable));
+                            end
+                        else
+                            data.selectedButton.menu:AddChildren(self:SetUpWidget(result));
+                        end
                     end
-                else
-                    data.selectedButton.menu:AddChildren(self:SetUpWidget(result));
                 end
             end
 
             -- the table was previously popped
-            obj:PushTable(loopResults);
+            obj:PushTable(results);
 
         elseif (widgetConfigTable.type == "frame") then
             local frame = self:SetUpWidget(widgetConfigTable);

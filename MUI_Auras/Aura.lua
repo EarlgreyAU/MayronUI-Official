@@ -77,8 +77,6 @@ function C_Aura:__Construct(data, parent, settings, auraID, filter)
     btn.iconFrame = CreateFrame("Frame", nil, btn);
     btn.iconTexture = btn.iconFrame:CreateTexture(nil, "ARTWORK");
     btn.iconTexture:SetTexCoord(0.1, 0.9, 0.1, 0.9);
-    btn.iconTexture:SetPoint("TOPLEFT", data.settings.border.size, -data.settings.border.size);
-    btn.iconTexture:SetPoint("BOTTOMRIGHT", -data.settings.border.size, data.settings.border.size);
 
     btn.countText = btn.iconFrame:CreateFontString(nil, "OVERLAY", "NumberFontNormal");
     UpdateTextAppearance(data.settings, "count", btn, "BOTTOMRIGHT", "BOTTOMRIGHT", btn.iconTexture);
@@ -89,8 +87,7 @@ function C_Aura:__Construct(data, parent, settings, auraID, filter)
         self:SetUpIcon();
     end
 
-    self:SetBorderShown(data.settings.border.show);
-    self:SetSparkShown(data.settings.statusBars.showSpark);
+    self:SetUpBorder();
 end
 
 function C_Aura:SetUpStatusBar(data)
@@ -108,17 +105,9 @@ function C_Aura:SetUpStatusBar(data)
 
     btn.statusBar = CreateFrame("StatusBar", nil, btn.statusBarFrame);
     btn.statusBar:SetStatusBarTexture(tk.Constants.LSM:Fetch("statusbar", statusBars.barTexture));
-    btn.statusBar:SetPoint("TOPLEFT", data.settings.border.size, -data.settings.border.size);
-    btn.statusBar:SetPoint("BOTTOMRIGHT", -data.settings.border.size, data.settings.border.size);
 
     btn.background = tk:SetBackground(btn.statusBarFrame, 0, 0, 0);
     btn.background:SetVertexColor(unpack(data.settings.colors.statusBarBackground));
-
-    local auraColor = self:GetAuraColor();
-
-    if (obj:IsTable(auraColor)) then
-        btn.statusBar:SetStatusBarColor(unpack(auraColor));
-    end
 
     btn.auraNameText = btn.statusBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
     UpdateTextAppearance(data.settings, "auraName", btn, "LEFT", "LEFT");
@@ -127,26 +116,24 @@ function C_Aura:SetUpStatusBar(data)
     btn.timeRemainingText = btn.statusBar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
     UpdateTextAppearance(data.settings, "timeRemaining", btn, "RIGHT", "RIGHT");
     btn.timeRemainingText:SetJustifyH("RIGHT");
+
+    self:SetSparkShown(data.settings.statusBars.showSpark);
 end
 
 function C_Aura:SetUpIcon(data)
     local btn = data.frame;
+    local icons = data.settings.icons;
 
-    btn:SetSize(data.settings.icons.auraSize, data.settings.icons.auraSize);
-    btn.iconTexture:SetPoint("TOPLEFT", data.settings.icons.borderSize, -data.settings.icons.borderSize);
-    btn.iconTexture:SetPoint("BOTTOMRIGHT", -data.settings.icons.borderSize, data.settings.icons.borderSize);
+    btn:SetSize(icons.auraSize, icons.auraSize);
+    btn.iconFrame:SetAllPoints(true);
 
-    local auraColor = self:GetAuraColor();
-    if (obj:IsTable(auraColor)) then
-        btn.background:SetVertexColor(unpack(auraColor));
-    end
-
+    btn.timeRemainingText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
     UpdateTextAppearance(data.settings, "timeRemaining", btn, "TOP", "BOTTOM");
 end
 
 --Changes which aura is being tracked and updates the icon and aura name
-Engine:DefineParams("number|boolean", "?string", "?string");
-function C_Aura:SetAura(data, iconTexture, auraName, debuffType)
+Engine:DefineParams("number|boolean", "?string");
+function C_Aura:SetAura(data, iconTexture, auraName)
     local btn = data.frame;
 
     if (not iconTexture) then
@@ -160,48 +147,46 @@ function C_Aura:SetAura(data, iconTexture, auraName, debuffType)
         btn.auraNameText:SetText(auraName);
     end
 
-    local color = data.settings.colors.aura;
+    local auraColor = self:GetAuraColor();
 
-    if (debuffType) then
-        color = data.settings.colors[debuffType:lower()];
-    end
+    if (btn.statusBar) then
+        btn.statusBar:SetStatusBarColor(unpack(auraColor));
 
-    if (obj:IsTable(color)) then
-        btn.background:SetVertexColor(unpack(color));
+    elseif (data.backdrop) then
+        btn.iconFrame:SetBackdropBorderColor(unpack(auraColor));
     end
 
     btn:Show();
     btn.forceUpdate = true;
 end
 
-function C_Aura:SetBorderShown(data, shown)
-    if (not data.backdrop and not shown) then
-        return;
+function C_Aura:SetUpBorder(data)
+    local settings = data.settings.border;
+    local btn = data.frame;
+
+    if (not data.backdrop) then
+        data.backdrop = obj:PopTable();
     end
 
-    local backdrop = nil;
+    data.backdrop.edgeFile = tk.Constants.LSM:Fetch("border", settings.type);
+    data.backdrop.edgeSize = settings.size;
 
-    if (shown) then
-        if (not data.backdrop) then
-            data.backdrop = obj:PopTable();
-        end
+    btn.iconFrame:SetBackdrop(data.backdrop);
 
-        local borderType = data.settings.border.type;
-        local borderSize = data.settings.border.size;
+    if (btn.statusBarFrame) then
+        btn.statusBarFrame:SetBackdrop(data.backdrop);
+        btn.statusBarFrame:SetBackdropBorderColor(unpack(data.settings.colors.statusBarBorder));
+        btn.iconFrame:SetBackdropBorderColor(unpack(data.settings.colors.statusBarBorder));
 
-        data.backdrop.edgeFile = tk.Constants.LSM:Fetch("border", borderType);
-        data.backdrop.edgeSize = borderSize;
-
-        backdrop = data.backdrop;
+        btn.statusBar:SetPoint("TOPLEFT", settings.size, -settings.size);
+        btn.statusBar:SetPoint("BOTTOMRIGHT", -settings.size, settings.size);
+    else
+        local auraColor = self:GetAuraColor();
+        btn.iconFrame:SetBackdropBorderColor(unpack(auraColor));
     end
 
-    if (data.frame.statusBarFrame) then
-        data.frame.statusBarFrame:SetBackdrop(backdrop);
-        data.frame.statusBarFrame:SetBackdropBorderColor(unpack(data.settings.colors.statusBarBorder));
-    end
-
-    data.frame.iconFrame:SetBackdrop(backdrop);
-    data.frame.iconFrame:SetBackdropBorderColor(unpack(data.settings.colors.statusBarBorder));
+    btn.iconTexture:SetPoint("TOPLEFT", settings.size, -settings.size);
+    btn.iconTexture:SetPoint("BOTTOMRIGHT", -settings.size, settings.size);
 end
 
 Engine:DefineReturns("table");
@@ -220,7 +205,7 @@ function C_Aura:GetAuraColor(data)
         if (data.settings.statusBars.enabled) then
             auraColor = data.settings.colors.statusBarAura;
         else
-            auraColor = data.settings.colors.auras;
+            auraColor = data.settings.colors.aura;
         end
     end
 
@@ -253,7 +238,7 @@ end
 function C_Aura:UpdateStatusBar(data, duration, timeRemaining)
     local btn = data.frame;
 
-    if (timeRemaining > 0) then
+    if (timeRemaining > 0 and duration) then
         btn.statusBar:SetMinMaxValues(0, duration);
         btn.statusBar:SetValue(timeRemaining);
 

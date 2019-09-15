@@ -34,15 +34,14 @@ local C_Aura = namespace.C_Aura;
 db:AddToDefaults("profile.auras", {
     __templateAuraArea = {
         enabled = true;
-        position = {"CENTER", "UIParent", "CENTER", 0,  0};
         textSize = {
             timeRemaining   = 10;
             count           = 14;
 
             statusBars = {
-                auraName        = 10;
                 timeRemaining   = 10;
                 count           = 12;
+                auraName        = 10;
             }
         };
         textPosition = {
@@ -58,7 +57,6 @@ db:AddToDefaults("profile.auras", {
         border = {
             type = "Skinner";
             size = 1;
-            show = true;
         };
         colors = {
             enchant               = {0.53, 0.23, 0.78};
@@ -70,27 +68,29 @@ db:AddToDefaults("profile.auras", {
         };
         icons = {
             auraSize        = 32;
-            borderSize      = 1;
             colSpacing      = 4;
             rowSpacing      = 16;
             perRow          = 16;
             growDirection   = "LEFT";
         };
         statusBars = {
-            enabled       = true; -- change to false once done
-            barAlpha      = 1;
+            enabled       = false;
             barTexture    = "MUI_StatusBar";
             width         = 260;
             height        = 24;
             spacing       = 2;
             growDirection = "DOWN";
-            borderSize    = 4;
             iconGap       = 2;
             showSpark     = true;
         };
     };
     Buffs = {
-        position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
+        icons = {
+            position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
+        };
+        statusBars = {
+            position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
+        };
         showPulseEffect = true;
         colors = {
             aura = {0, 0, 0};
@@ -99,7 +99,9 @@ db:AddToDefaults("profile.auras", {
     };
 
     Debuffs = {
-        position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
+        icons = {
+            position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
+        };
         statusBars = {
             position = {"TOPRIGHT", "MUI_BuffsArea", "TOPLEFT", -10, 0};
         };
@@ -221,7 +223,7 @@ local function AuraArea_OnEvent(_, _, auraArea, data)
     end
 
     for auraID = 1, data.totalAuras do
-        local name, iconTexture, _, debuffType = UnitAura("player", auraID, data.filter);
+        local name, iconTexture = UnitAura("player", auraID, data.filter);
         local btn = data.auraButtons[auraID];
 
         if (name and iconTexture) then
@@ -231,7 +233,7 @@ local function AuraArea_OnEvent(_, _, auraArea, data)
         end
 
         if (btn) then
-            btn.obj:SetAura(iconTexture or false, name, debuffType);
+            btn.obj:SetAura(iconTexture or false, name);
         end
     end
 
@@ -435,6 +437,8 @@ function C_AuraArea:SetEnabled(data, enabled)
         return;
     end
 
+    local newlyCreated;
+
     if (enabled) then
         if (not data.frame) then
             data.frame = CreateFrame("Frame", data.globalName);
@@ -452,6 +456,8 @@ function C_AuraArea:SetEnabled(data, enabled)
                 :SetCallbackArgs(self, data)
                 :AppendEvent("GROUP_ROSTER_UPDATE")
                 :AppendEvent("PLAYER_ENTERING_WORLD");
+
+            newlyCreated = true;
         end
 
         data.frame.timeSinceLastUpdate = 0;
@@ -460,17 +466,23 @@ function C_AuraArea:SetEnabled(data, enabled)
         end);
 
         data.frame:SetParent(UIParent);
+        data.frame:ClearAllPoints();
 
-        if (data.settings.statusBars.enabled and data.settings.statusBars.position) then
+        if (data.settings.statusBars.enabled) then
             data.frame:SetPoint(unpack(data.settings.statusBars.position));
         else
-            data.frame:SetPoint(unpack(data.settings.position));
+            data.frame:SetPoint(unpack(data.settings.icons.position));
         end
     else
-        em:DestroyEventHandlerByKey(data.globalName.."Handler");
         data.frame:SetScript("OnUpdate", nil);
         data.frame:SetParent(tk.Constants.DUMMY_FRAME);
         data.frame:SetAllPoints(tk.Constants.DUMMY_FRAME);
+    end
+
+    if (not newlyCreated) then
+        local handler = em:FindEventHandlerByKey(data.globalName.."Handler");
+        handler:SetEventCallbackEnabled("GROUP_ROSTER_UPDATE", enabled);
+        handler:SetEventCallbackEnabled("PLAYER_ENTERING_WORLD", enabled);
     end
 
     data.frame:SetShown(enabled);
@@ -495,6 +507,22 @@ local function SortByTimeRemaining(a, b)
     end
 
     return a.timeRemaining > b.timeRemaining;
+end
+
+function C_AuraArea:GetAuraButtons(data, excludeEnchantButtons)
+    local auraButtons = obj:PopTable();
+
+    if (not excludeEnchantButtons and data.enchantButtons) then
+        for _, enchantBtn in ipairs(data.enchantButtons) do
+            table.insert(auraButtons, enchantBtn);
+        end
+    end
+
+    for _, auraBtn in ipairs(data.auraButtons) do
+        table.insert(auraButtons, auraBtn);
+    end
+
+    return auraButtons;
 end
 
 function C_AuraArea:RefreshAnchors(data)
@@ -564,8 +592,6 @@ function C_AuraArea:RefreshAnchors(data)
             end
         end
 
-
-
         totalPositioned = totalPositioned + 1;
     end
 
@@ -581,27 +607,6 @@ function C_AurasModule:OnInitialize(data)
         sv:SetParent(db.profile.auras.__templateAuraArea);
     end
 
-    -- local function RefreshAnchors(_, keyName, auraArea, areaName)
-    --     if (auraArea) then
-    --         local settingName = keyName:PopFront();
-
-    --         if (settingName == "position") then
-    --             local frame = auraArea:GetFrame();
-    --             frame:ClearAllPoints();
-    --             frame:SetPoint(unpack(data.settings[areaName].position));
-    --         else
-    --             auraArea:RefreshAnchors();
-    --         end
-
-    --     end
-    -- end
-
-    -- local function UpdateAppearance(_, _, auraArea)
-    --     if (auraArea) then
-    --         auraArea:UpdateAppearance();
-    --     end
-    -- end
-
     local options = {
         onExecuteAll = {
             first = {
@@ -615,35 +620,132 @@ function C_AurasModule:OnInitialize(data)
                 patterns = { ".*" }; -- (i.e. "Buffs.<setting>")
 
                 onPre = function(value, keysList)
-                    local auraAreaName = keysList:PopFront();
-                    keysList:PopFront();
-                    local auraArea = data.auraAreas[auraAreaName]; ---@type C_AuraArea
+                    local areaName = keysList:PopFront(); ---@type LinkedList
+                    local auraArea = data.auraAreas[areaName]; ---@type C_AuraArea
+                    local settingName = keysList:GetFront();
 
-                    if (value and not auraArea) then
-                        auraArea = C_AuraArea(data.settings, auraAreaName);
-                        data.auraAreas[auraAreaName] = auraArea;
+                    if (settingName == "enabled" and not auraArea and value) then
+                        auraArea = C_AuraArea(data.settings, areaName);
+                        data.auraAreas[areaName] = auraArea;
                     end
 
-                    return auraArea, auraAreaName;
+                    if (not auraArea) then
+                        return; -- do not execute
+                    end
+
+                    return auraArea, areaName;
                 end;
 
                 value = {
                     enabled = function(value, _, auraArea, areaName)
-                        if (auraArea) then
-                            auraArea:SetEnabled(value, areaName);
+                        auraArea:SetEnabled(value, areaName);
+                    end;
+                    textSize = function(value, keysList, auraArea)
+                        local auras = auraArea:GetAuraButtons();
+                        local textName = keysList:GetBack();
+
+                        for _, aura in ipairs(auras) do
+                            tk:SetFontSize(aura[textName .. "Text"], value);
                         end
                     end;
-                    -- position = RefreshAnchors;
-                    -- appearance = UpdateAppearance;
-                    -- showPulseEffect = function(value, _, auraArea)
-                    --     if (not value) then
-                    --         local areaData = data:GetFriendData(auraArea);
+                    textPosition = function(value, keysList, auraArea)
+                        local auras = auraArea:GetAuraButtons();
+                        local settingName = keysList:PopBack();
+                        local textName = keysList:PopBack();
 
-                    --         for _, btn in ipairs(areaData.auraButtons) do
-                    --             btn:SetAlpha(1);
-                    --         end
-                    --     end
-                    -- end;
+                        for _, aura in ipairs(auras) do
+                            local fontString = aura[textName .. "Text"];
+                            local p, rf, rp, x, y = fontString:GetPoint();
+
+                            if (settingName == 1) then
+                                fontString:SetPoint(p, rf, rp, value, y);
+                            elseif (settingName == 2) then
+                                fontString:SetPoint(p, rf, rp, x, value);
+                            end
+                        end
+                    end;
+                    border = function(_, _, auraArea)
+                        local auras = auraArea:GetAuraButtons();
+
+                        for _, aura in ipairs(auras) do
+                            aura.obj:SetUpBorder();
+                        end
+                    end;
+                    colors = function(value, keysList, auraArea, _)
+                        local auras = auraArea:GetAuraButtons();
+                        local settingName = keysList:GetBack();
+
+                        for _, aura in ipairs(auras) do
+                            if (settingName == "statusBarBackground") then
+                                aura.background:SetVertexColor(unpack(value));
+                            else
+                                aura.obj:SetUpBorder();
+                            end
+                        end
+                    end;
+                    icons = function(value, keysList, auraArea, areaName)
+                        local settingName = keysList:PopBack();
+                        local isPosition = keysList:PopBack() == "position";
+
+                        if (isPosition) then
+                            auraArea:ClearAllPoints();
+                            local p, rf, rp, x, y = unpack(data.settings[areaName].icons.position);
+                            rf = _G[rf];
+                            auraArea:SetPoint(p, rf, rp, x, y);
+                            return;
+                        end
+
+                        if (settingName == "auraSize") then
+                            local auras = auraArea:GetAuraButtons();
+
+                            for _, aura in ipairs(auras) do
+                                aura:SetSize(value, value);
+                            end
+                        else
+                            auraArea:RefreshAnchors();
+                        end
+
+                        auraArea:UpdateSize();
+                    end;
+                    statusBars = function(value, keysList, auraArea, areaName)
+                        local settingName = keysList:PopBack();
+                        local isPosition = keysList:PopBack() == "position";
+
+                        if (isPosition) then
+                            auraArea:ClearAllPoints();
+                            local p, rf, rp, x, y = unpack(data.settings[areaName].statusBars.position);
+                            rf = _G[rf];
+                            auraArea:SetPoint(p, rf, rp, x, y);
+                            return;
+                        end
+
+                        if (settingName == "growDirection" or settingName == "spacing") then
+                            auraArea:RefreshAnchors();
+                            auraArea:UpdateSize();
+                            return;
+                        end
+
+                        local auras = auraArea:GetAuraButtons();
+
+                        for _, aura in ipairs(auras) do
+                            if (settingName == "width") then
+                                aura:SetWidth(value);
+
+                            elseif (settingName == "height") then
+                                aura:SetHeight(value);
+                                auraArea:UpdateSize();
+
+                            elseif (settingName == "iconGap") then
+                                aura.statusBarFrame:SetPoint("TOPLEFT", aura.iconFrame, "TOPRIGHT", value, 0);
+
+                            elseif (settingName == "showSpark") then
+                                aura.obj:SetSparkShown(value);
+
+                            elseif (settingName == "barTexture") then
+                                aura.statusBar:SetStatusBarTexture(tk.Constants.LSM:Fetch("statusbar", value));
+                            end
+                        end
+                    end;
                 }
             };
         };

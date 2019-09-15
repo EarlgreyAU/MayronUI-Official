@@ -74,7 +74,7 @@ local function UnlockCastBar(widget, castBarName)
             end
 
             SetPositionTextFieldsEnabled(true, castBarName);
-            
+
             if (castBarName ~= "Mirror") then
                 sufAnchor_CheckButtons[castBarName]:SetChecked(false);
                 db:SetPathValue(tk.Strings:Join(".", "profile.castBars", castBarName, "anchorToSUF"), false);

@@ -30,7 +30,7 @@ local function AuraArea_OnDragStop(field)
     savePositionButtons[auraAreaName]:SetEnabled(true);
 end
 
-function C_AurasModule:GetConfigTable()
+function C_AurasModule:GetConfigTable(data)
     return {
         name = "Auras (Buffs & Debuffs)",
         type = "menu",
@@ -39,12 +39,12 @@ function C_AurasModule:GetConfigTable()
             {   type = "loop";
                 args = { "Buffs", "Debuffs" },
                 func = function(_, name)
-                    local dbPath = "profile.auras."..name;
+                    local statusBarsEnabled = data.settings[name].statusBars.enabled;
 
                     local tbl = {
                         type = "submenu",
                         name = name;
-                        dbPath = dbPath,
+                        dbPath = "profile.auras."..name,
 
                         OnLoad = function()
                             position_TextFields[name] = obj:PopTable();
@@ -55,6 +55,21 @@ function C_AurasModule:GetConfigTable()
                                 type = "check",
                                 appendDbPath = "enabled",
                             },
+                            {   name = "Layout Type";
+                                requiresReload = true;
+                                type = "dropdown";
+                                appendDbPath = "statusBars.enabled";
+                                options = { "Icons", "Status Bars" };
+                                GetValue = function(_, value)
+                                    return (not value and "Icons") or "Status Bars";
+                                end;
+                                SetValue = function(_, value)
+                                    value = value == "Status Bars";
+                                    db:SetPathValue(db.profile, "auras." .. name .. ".statusBars.enabled", value);
+                                end;
+                            };
+                            {   type = "divider";
+                            };
                             {   name = L["Unlock"];
                                 type = "button";
                                 OnClick = function(button)
@@ -103,134 +118,275 @@ function C_AurasModule:GetConfigTable()
                                     end
 
                                     local positions = tk.Tables:GetFramePosition(auraArea);
-                                    db:SetPathValue(dbPath .. ".placement.position", positions);
+                                    local dbPath;
 
+                                    if (statusBarsEnabled) then
+                                        dbPath =  tk.Strings:Concat("auras.", name, ".statusBars.position");
+                                    else
+                                        dbPath =  tk.Strings:Concat("auras.", name, ".icons.position");
+                                    end
+
+                                    db:SetPathValue(db.profile, dbPath, positions);
                                     AuraArea_OnDragStop(auraArea);
                                     savePositionButtons[name]:SetEnabled(false);
                                 end
                             };
-                            {   type = "divider"
-                            },
-                            {   name = "Growth Direction",
-                                type = "dropdown",
-                                appendDbPath = "placement.growDirection",
-                                options = { Left = "LEFT", Right = "RIGHT" }
-                            },
-                            {   type = "divider"
-                            },
-                            {   name = "Max per Row",
-                                type = "slider",
-                                appendDbPath = "placement.perRow",
-                                min = 1,
-                                max = _G.BUFF_MAX_DISPLAY,
-                                step = 1,
-                            },
-                            {   name = "Aura Size",
-                                type = "slider",
-                                appendDbPath = "appearance.auraSize",
-                                min = 30,
-                                max = 100,
-                                step = 1,
-                            },
-                            {   name = "Time Remaining Font Size",
-                                type = "slider",
-                                appendDbPath = "appearance.timeRemainingFontSize",
-                                width = 200,
-                                min = 4,
-                                max = 30,
-                                step = 1,
-                            },
-                            {   name = "Border Size",
-                                type = "slider",
-                                appendDbPath = "appearance.borderSize",
-                                min = 1,
-                                max = 5,
-                                step = 1,
-                            },
-                            {   name = "Column Spacing",
-                                type = "slider",
-                                appendDbPath = "placement.colSpacing",
-                                min = 1,
-                                max = 50,
-                                step = 1,
-                            },
-                            {   name = "Row Spacing",
-                                type = "slider",
-                                appendDbPath = "placement.rowSpacing",
-                                min = 1,
-                                max = 50,
-                                step = 1,
-                            },
                             {   name = L["Manual Positioning"],
                                 type = "title",
                             },
                             {   type = "loop";
                                 args = { L["Point"], L["Relative Frame"], L["Relative Point"], L["X-Offset"], L["Y-Offset"] };
                                 func = function(index, arg)
+                                    local dbPath;
+
+                                    if (statusBarsEnabled) then
+                                        dbPath = tk.Strings:Concat("profile.auras.", name, ".statusBars.position[", index, "]");
+                                    else
+                                        dbPath = tk.Strings:Concat("profile.auras.", name, ".icons.position[", index, "]");
+                                    end
+
                                     return {
                                         name = arg;
                                         type = "textfield";
                                         valueType = "string";
-                                        dbPath = tk.Strings:Concat(dbPath, ".placement.position[", index, "]");
+                                        dbPath = dbPath;
                                         auraAreaName = name;
                                         OnLoad = AuraAreaPosition_OnLoad;
                                     };
                                 end
                             };
-                            {   name = "Colors",
-                                type = "title",
-                            },
-                            {   name = "Basic " .. name,
-                                type = "color",
-                                width = 200;
-                                useIndexes = true;
-                                appendDbPath = "appearance.colors.aura"
-                            },
-                        }
-                    };
+                            {   type = "title";
+                                name = "Icon Options";
+                            };
+                            {   type = "condition";
+                                func = function()
+                                    return not statusBarsEnabled;
+                                end;
+                                onFalse = {
+                                    {   type = "fontstring";
+                                        content = "Icon options are disabled when using status bars.";
+                                    }
+                                };
+                                onTrue = {
+                                    {   type = "slider";
+                                        name = "Icon Size";
+                                        appendDbPath = "icons.auraSize";
+                                        min = 30;
+                                        max = 100;
+                                    };
+                                    {   name = "Column Spacing",
+                                        type = "slider",
+                                        appendDbPath = "icons.colSpacing",
+                                        min = 1,
+                                        max = 50;
+                                    },
+                                    {   name = "Row Spacing",
+                                        type = "slider",
+                                        appendDbPath = "icons.rowSpacing",
+                                        min = 1,
+                                        max = 50;
+                                    };
+                                    {   name = "Icons per Row";
+                                        type = "slider";
+                                        appendDbPath = "icons.perRow";
+                                        min = 1;
+                                        max = name == "Buffs" and _G.BUFF_MAX_DISPLAY or _G.DEBUFF_MAX_DISPLAY;
+                                    };
+                                    {   name = "Growth Direction",
+                                        type = "dropdown",
+                                        appendDbPath = "icons.growDirection",
+                                        options = { Left = "LEFT", Right = "RIGHT" }
+                                    };
+                                };
+                            };
+                            {   type = "title";
+                                name = "Status Bar Options";
+                            };
+                            {   type = "condition";
+                                func = function()
+                                    return statusBarsEnabled;
+                                end;
+                                onFalse = {
+                                    {   type = "fontstring";
+                                        content = "Status bar options are disabled when using icons.";
+                                    }
+                                };
+                                onTrue = {
+                                    {   type = "dropdown";
+                                        name = L["Bar Texture"];
+                                        options = tk.Constants.LSM:List("statusbar");
+                                        appendDbPath = "statusBars.barTexture";
+                                    };
+                                    {   type = "textfield";
+                                        name = "Bar Width";
+                                        appendDbPath = "statusBars.width";
+                                        valueType = "number";
+                                        min = 100;
+                                        max = 400;
+                                    };
+                                    {   type = "textfield";
+                                        name = "Bar Height";
+                                        appendDbPath = "statusBars.height";
+                                        valueType = "number";
+                                        min = 10;
+                                        max = 80;
+                                    };
+                                    {   name = "Spacing",
+                                        type = "slider",
+                                        appendDbPath = "statusBars.spacing",
+                                        min = 0,
+                                        max = 50;
+                                    },
+                                    {   type = "slider";
+                                        name = "Icon Gap";
+                                        appendDbPath = "statusBars.iconGap";
+                                        min = 0;
+                                        max = 10;
+                                    };
+                                    {   name = "Growth Direction",
+                                        type = "dropdown",
+                                        appendDbPath = "statusBars.growDirection",
+                                        options = { Up = "UP", Down = "DOWN" }
+                                    };
+                                    {   name = "Show Spark",
+                                        type = "check",
+                                        appendDbPath = "statusBars.showSpark",
+                                    };
+                                };
+                            };
+                            {   type = "title";
+                                name = "Text";
+                            };
+                            {   type = "loop";
+                                args = { "Time Remaining", "Count", "Aura Name" },
+                                func = function(_, textName)
+                                    local sections = obj:PopTable(string.split(" ", textName));
+                                    sections[1] = sections[1]:lower();
 
-                    if (name == "Debuffs") then
-                        local debuffColors = {
-                            {   name = "Magic Debuff";
+                                    local key = table.concat(sections, "");
+                                    obj:PushTable(sections);
+
+                                    local xOffsetDbPath = string.format("textPosition.%s[1]", key);
+                                    local yOffsetDbPath = string.format("textPosition.%s[2]", key);
+                                    local textSizeDbPath = string.format("textSize.%s", key);
+
+                                    if (statusBarsEnabled) then
+                                        xOffsetDbPath = string.format("textPosition.statusBars.%s[1]", key);
+                                        yOffsetDbPath = string.format("textPosition.statusBars.%s[2]", key);
+                                        textSizeDbPath = string.format("textSize.statusBars.%s", key);
+                                    elseif (textName == "Aura Name") then
+                                        return;
+                                    end
+
+                                    return {
+                                        {   type = "fontstring";
+                                            subtype = "header";
+                                            content = textName;
+                                        };
+                                        {   type = "textfield";
+                                            name = "X-Offset";
+                                            appendDbPath = xOffsetDbPath;
+                                            valueType = "number";
+                                        };
+                                        {   type = "textfield";
+                                            name = "Y-Offset";
+                                            appendDbPath = yOffsetDbPath;
+                                            valueType = "number";
+                                        };
+                                        {   type = "slider";
+                                            name = "Font Size";
+                                            appendDbPath = textSizeDbPath;
+                                            min = 8;
+                                            max = 24;
+                                        };
+                                    }
+                                end;
+                            };
+                            {   type = "title";
+                                name = "Border";
+                            };
+                            {   type = "dropdown";
+                                name = "Border Type";
+                                options = tk.Constants.LSM:List("border");
+                                appendDbPath = "border.type";
+                            };
+                            {   type = "slider";
+                                name = "Border Size";
+                                appendDbPath = "border.size";
+                                min = 1;
+                                max = 10;
+                            };
+                            {   type = "title";
+                                name = "Colors";
+                            };
+                            {   name = "Basic " .. name;
                                 type = "color";
                                 width = 200;
                                 useIndexes = true;
-                                appendDbPath = "appearance.colors.magic";
+                                appendDbPath = "colors.aura";
+                            },
+                            {   type = "condition";
+                                func = function()
+                                    return name == "Buffs";
+                                end;
+                                onTrue = {
+                                    {
+                                        name = "Weapon Enchants",
+                                        type = "color",
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.enchant"
+                                    }
+                                };
+                                onFalse = {
+                                    {   name = "Magic Debuff";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.magic";
+                                    };
+                                    {   name = "Disease Debuff";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.disease";
+                                    };
+                                    {   name = "Poison Debuff";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.poison";
+                                    };
+                                    {   name = "Curse Debuff";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.curse";
+                                    };
+                                }
                             };
-                            {   name = "Disease Debuff";
-                                type = "color";
-                                width = 200;
-                                useIndexes = true;
-                                appendDbPath = "appearance.colors.disease";
-                            };
-                            {   name = "Poison Debuff";
-                                type = "color";
-                                width = 200;
-                                useIndexes = true;
-                                appendDbPath = "appearance.colors.poison";
-                            };
-                            {   name = "Curse Debuff";
-                                type = "color";
-                                width = 200;
-                                useIndexes = true;
-                                appendDbPath = "appearance.colors.curse";
-                            };
+                            {   type = "condition";
+                                func = function()
+                                    return statusBarsEnabled;
+                                end;
+                                onTrue = {
+                                    {   name = "Bar Background";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        hasOpacity = true;
+                                        appendDbPath = "colors.statusBarBackground";
+                                    };
+                                    {   name = "Bar Border";
+                                        type = "color";
+                                        width = 200;
+                                        useIndexes = true;
+                                        appendDbPath = "colors.statusBarBorder";
+                                    };
+                                }
+                            }
                         };
-
-                        for _, value in ipairs(debuffColors) do
-                            table.insert(tbl.children, value);
-                        end
-
-                        obj:PushTable(debuffColors);
-                    else
-                        table.insert(tbl.children, {
-                            name = "Weapon Enchants",
-                            type = "color",
-                            width = 200;
-                            useIndexes = true;
-                            appendDbPath = "appearance.colors.enchant"
-                        });
-                    end
+                    };
 
                     return tbl;
                 end;
