@@ -131,6 +131,10 @@ function C_AurasModule:GetConfigTable(data)
                                     savePositionButtons[name]:SetEnabled(false);
                                 end
                             };
+                            {   type = "check";
+                                name = "Show Pulse Effect";
+                                appendDbPath = "showPulseEffect";
+                            };
                             {   name = L["Manual Positioning"],
                                 type = "title",
                             },

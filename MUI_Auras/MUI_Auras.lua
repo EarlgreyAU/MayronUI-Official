@@ -34,6 +34,7 @@ local C_Aura = namespace.C_Aura;
 db:AddToDefaults("profile.auras", {
     __templateAuraArea = {
         enabled = true;
+        showPulseEffect = true;
         textSize = {
             timeRemaining   = 10;
             count           = 14;
@@ -91,7 +92,6 @@ db:AddToDefaults("profile.auras", {
         statusBars = {
             position = {"TOPRIGHT", "Minimap", "TOPLEFT", -4, 0};
         };
-        showPulseEffect = true;
         colors = {
             aura = {0, 0, 0};
             statusBarAura = { 0.1, 0.1, 0.1 };
@@ -99,6 +99,7 @@ db:AddToDefaults("profile.auras", {
     };
 
     Debuffs = {
+        showPulseEffect = false;
         icons = {
             position = {"TOPRIGHT", "MUI_BuffsArea", "BOTTOMRIGHT", 0, -10};
         };
@@ -369,7 +370,7 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons, enchantButtons, pul
     self.timeSinceLastUpdate = self.timeSinceLastUpdate + elapsed;
 
     for _, btn in ipairs(auraButtons) do
-        if (btn.filter == "HELPFUL" and pulse) then
+        if (pulse) then
             AuraButton_UpdateAlpha(btn, elapsed);
         end
 
@@ -462,7 +463,7 @@ function C_AuraArea:SetEnabled(data, enabled)
 
         data.frame.timeSinceLastUpdate = 0;
         data.frame:SetScript("OnUpdate", function(self, elapsed)
-            AuraArea_OnUpdate(self, elapsed, data.auraButtons, data.enchantButtons, data.settings.pulse);
+            AuraArea_OnUpdate(self, elapsed, data.auraButtons, data.enchantButtons, data.settings.showPulseEffect);
         end);
 
         data.frame:SetParent(UIParent);
