@@ -4,8 +4,12 @@ local _G, LibStub = _G, _G.LibStub;
 
 MayronUI = {};
 
--- remove the Shaman Pink class color back to retail.
-_G.RAID_CLASS_COLORS["SHAMAN"] = _G.CreateColor(0.0, 0.44, 0.87);
+do
+    -- remove the Shaman Pink class color back to retail.
+    local shamanColor = _G.RAID_CLASS_COLORS["SHAMAN"];
+    shamanColor:SetRGB(0.0, 0.44, 0.87);
+    shamanColor.colorStr = shamanColor:GenerateHexColor();
+end
 
 local MigrateToGen6;
 local table, ipairs, select, string, unpack, print = _G.table, _G.ipairs, _G.select, _G.string, _G.unpack, _G.print;
@@ -748,6 +752,8 @@ db:OnStartUp(function(self)
         _G.ScriptErrorsFrame.DisplayMessage = function() end;
         error();
     end);
+
+    tk:KillElement(_G.WorldMapFrame.BlackoutFrame);
 end);
 
 -- MUI Gen5 to Gen6 Migration:

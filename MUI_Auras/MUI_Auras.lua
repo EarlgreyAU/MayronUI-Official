@@ -63,9 +63,9 @@ db:AddToDefaults("profile.auras", {
             enchant               = {0.53, 0.23, 0.78};
             statusBarBackground   = {0, 0, 0, 0.5};
             statusBarBorder       = { 0, 0, 0 };
-            timeRemaining         = {tk:GetThemeColor()};
+            timeRemaining         = {1, 1, 1};
             count                 = {1, 1, 1};
-            auraName              = {tk:GetThemeColor()};
+            auraName              = {1, 1, 1};
         };
         icons = {
             auraSize        = 32;
@@ -260,7 +260,7 @@ local function AuraButton_UpdateAlpha(self, elapsed)
         end
     end
 
-    local expirationTime = select(6, UnitAura("player", self:GetID(), self.filter));
+    local expirationTime = select(6, UnitAura("player", self:GetID(), "HELPFUL"));
 
     if (not expirationTime or expirationTime <= 0) then
         self:SetAlpha(1);
@@ -382,6 +382,10 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons, enchantButtons, pul
 
     if (enchantButtons) then
         for _, btn in ipairs(enchantButtons) do
+            if (pulse) then
+                AuraButton_UpdateAlpha(btn, elapsed);
+            end
+
             AuraEnchantButton_OnUpdate(self, btn, self:GetName());
         end
     end

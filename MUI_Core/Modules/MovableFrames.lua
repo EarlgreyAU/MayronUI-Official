@@ -23,7 +23,6 @@ local BlizzardFrames = {
 	"LootFrame", "ReadyCheckFrame", "BonusRollMoneyWonFrame", "BonusRollFrame", "TradeFrame", "TabardFrame", "GuildRegistrarFrame",
 	"ItemTextFrame", "DressUpFrame", "GameMenuFrame", "TaxiFrame", "HelpFrame", "PVEFrame", "MerchantFrame",
 	"PetBattleFrame.ActiveAlly", "PetBattleFrame.ActiveEnemy", "ChannelFrame", "WorldMapFrame",
-
 	{
 		"CharacterFrame";
 		clickedFrames = { "CharacterFrameTab1", "CharacterFrameTab2", "CharacterFrameTab3" };
@@ -36,26 +35,7 @@ local BlizzardFrames = {
 		TradeSkillDW = "TradeSkillDW_QueueFrame";
 	};
 
-	Blizzard_GarrisonUI = {
-		"GarrisonCapacitiveDisplayFrame";
-		"GarrisonLandingPage";
-		"GarrisonMissionFrame";
-		"GarrisonBuildingFrame";
-		"GarrisonRecruitSelectFrame";
-		"GarrisonRecruiterFrame";
-	};
-
-	Blizzard_LookingForGuildUI =
-	{
-		hooked = {
-			{
-				"LookingForGuildFrame", funcName = "LookingForGuildFrame_CreateUIElements";
-			}
-		};
-	};
-
 	Blizzard_Communities = "CommunitiesFrame";
-	Blizzard_VoidStorageUI = "VoidStorageFrame";
 	Blizzard_ItemAlterationUI = "TransmogrifyFrame";
 	Blizzard_GuildBankUI = "GuildBankFrame";
 	Blizzard_TalentUI = "TalentFrame";
@@ -64,16 +44,6 @@ local BlizzardFrames = {
 	Blizzard_Calendar = "CalendarFrame";
 	Blizzard_GuildUI = "GuildFrame";
 	Blizzard_TradeSkillUI = "TradeSkillFrame";
-	Blizzard_EncounterJournal = {
-		"EncounterJournal",
-		onLoad = function()
-			local setPoint = _G.EncounterJournalTooltip.SetPoint;
-			_G.EncounterJournalTooltip.SetPoint = function(self, p, f, rp, x, y)
-				f:ClearAllPoints();
-				setPoint(self, p, f, rp, x, y);
-			end
-		end
-	};
 	Blizzard_ArchaeologyUI = "ArchaeologyFrame";
 	Blizzard_AchievementUI = {
 		"AchievementFrame";
@@ -86,7 +56,6 @@ local BlizzardFrames = {
 	Blizzard_InspectUI = "InspectFrame";
 	Blizzard_ItemSocketingUI = "ItemSocketingFrame";
 	Blizzard_ItemUpgradeUI = "ItemUpgradeFrame";
-	Blizzard_AzeriteUI = "AzeriteEmpoweredItemUI";
 };
 
 local function GetFrame(frameName)
