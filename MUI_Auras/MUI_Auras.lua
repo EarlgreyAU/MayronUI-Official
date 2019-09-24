@@ -382,10 +382,6 @@ local function AuraArea_OnUpdate(self, elapsed, auraButtons, enchantButtons, pul
 
     if (enchantButtons) then
         for _, btn in ipairs(enchantButtons) do
-            if (pulse) then
-                AuraButton_UpdateAlpha(btn, elapsed);
-            end
-
             AuraEnchantButton_OnUpdate(self, btn, self:GetName());
         end
     end
