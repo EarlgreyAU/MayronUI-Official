@@ -1578,13 +1578,23 @@ end
 function Core:Assert(condition, errorMessage, ...)
     if (not condition) then
         if (errorMessage) then
+            local size = select("#", ...);
 
-            if ((select(1, ...)) ~= nil) then
-                errorMessage = string.format(errorMessage, ...);
+            if (size > 0) then
+                local args = Lib:PopTable(...);
+
+                for i = 1, size do
+                    if (args[i] == nil) then
+                        args[i] = Lib.Types.Nil;
+                    end
+                end
+
+                errorMessage = string.format(errorMessage, Lib:UnpackTable(args));
 
             elseif (string.match(errorMessage, "%s")) then
                 errorMessage = string.format(errorMessage, Lib.Types.Nil);
             end
+
         else
             errorMessage = "condition failed";
         end
