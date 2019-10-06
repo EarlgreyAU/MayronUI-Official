@@ -227,7 +227,9 @@ do
         local length = 1;
 
         for id, _ in pairs(wrapper) do
-            length = id;
+            if (id > length) then
+                length = id;
+            end
         end
 
         if (not doNotPushTable) then
@@ -550,7 +552,7 @@ local function CreateProxyObject(object, key, self, controller, privateData)
 
         if (Lib:IsTable(attributes)) then
             for _, attribute in ipairs(attributes) do
-                if (not attribute:OnExecute(proxyObject.self, proxyObject.privateData, proxyObject.key, Lib:UnpackTable(args))) then
+                if (not attribute:OnExecute(proxyObject.self, proxyObject.privateData, proxyObject.key, Lib:UnpackTable(args, true))) then
                     Lib:PushTable(args);
                     return nil; -- if attribute returns false, do no move onto the next attribute and do not call function
                 end
