@@ -26,6 +26,7 @@ local function button_OnEnter(self)
     GameTooltip:SetOwner(self, "ANCHOR_TOP", 0, 2);
     GameTooltip:SetText(L["Commands"]..":");
     GameTooltip:AddDoubleLine(tk.Strings:SetTextColorByTheme(L["Left Click:"]), L["Toggle Bags"], r, g, b, 1, 1, 1);
+    GameTooltip:AddDoubleLine(tk.Strings:SetTextColorByTheme(L["Right Click:"]), L["Sort Bags"], r, g, b, 1, 1, 1);
     GameTooltip:Show();
 end
 
@@ -105,7 +106,10 @@ function Inventory:Update(data, refreshSettings)
     end
 end
 
-function Inventory:Click()
-    -- must use global for bagnon support
-    _G.ToggleAllBags();
+function Inventory:Click(_, button)
+	if (button == "LeftButton") then
+        _G.ToggleAllBags();
+     elseif (button == "RightButton") then
+        _G.SortBags();
+     end
 end

@@ -9,13 +9,14 @@
 
 ## Libraries:
 Libs\LibStub.lua
-Libs\LibMayronObjects-2.8\LibMayronObjects.xml
+Libs\LibMayronObjects\LibMayronObjects.xml
 Libs\LibMayronDB-2.3\LibMayronDB.lua
 Libs\LibMayronEvents-1.1.lua
 Libs\LibMayronGUI-1.0\LibMayronGUI.xml
 Libs\LibSharedMedia-3.0\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 Libs\AceLocale-3.0.lua
+Libs\SortBags.lua
 
 ## Localization
 Locales\Locales.xml

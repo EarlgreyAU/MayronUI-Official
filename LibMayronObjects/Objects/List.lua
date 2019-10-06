@@ -1,6 +1,8 @@
 -- luacheck: ignore self 143 631
 local Lib = _G.LibStub:GetLibrary("LibMayronObjects"); ---@type LibMayronObjects
 local Collections = Lib:Import("Framework.System.Collections");
+
+---@class List : Object
 local List = Collections:CreateClass("List");
 
 function List:__Construct(data, ...)

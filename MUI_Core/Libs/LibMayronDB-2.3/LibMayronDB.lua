@@ -242,7 +242,6 @@ function Database:Start(data)
     data.sv.profiles.Default = data.sv.profiles.Default or obj:PopTable();
 
     -- create Profile and Global accessible observers:
-
     self.profile = Observer(false, data);
     self.global = Observer(true, data);
 
@@ -645,6 +644,10 @@ Framework:DefineParams("boolean", "table");
 ---@param isGlobal boolean @If true, the observer is associated with a global database path address.
 ---@param previousData table @the previous observer data.
 function Observer:__Construct(data, isGlobal, previousData)
+    if (isGlobal == nil) then
+        error("WTF");
+    end
+
     data.isGlobal = isGlobal;
     data.helper = previousData.helper;
     data.sv = previousData.sv;
@@ -1222,6 +1225,9 @@ function Helper:GetNextValue(data, previousObserverData, tbl, key)
         nextObserver = previousObserverData.internalTree[key];
 
         if (not nextObserver) then
+            if (previousObserverData.isGlobal == nil) then
+                error("failed")
+            end
             nextObserver = Observer(previousObserverData.isGlobal, previousObserverData);
         end
 

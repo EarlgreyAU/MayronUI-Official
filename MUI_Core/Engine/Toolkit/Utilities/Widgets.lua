@@ -240,11 +240,10 @@ end
 function tk:ApplyThemeColor(...)
     local alpha = (select(1, ...));
 
-    -- first argument is "colorName"
-    if (not (obj:IsNumber(alpha) and alpha)) then
-        tk.Constants.AddOnStyle:ApplyColor(nil, 1, ...);
-    else
+    if (obj:IsNumber(alpha)) then
         tk.Constants.AddOnStyle:ApplyColor(nil, ...);
+    else
+        tk.Constants.AddOnStyle:ApplyColor(nil, 1, ...);
     end
 end
 

@@ -125,10 +125,9 @@ local function DefineParams_Test2() -- luacheck: ignore
 
     local TestPackage = lib:CreatePackage("DefineParams_Test2");
 
-    local IHandler = TestPackage:CreateInterface("IHandler");
-
-    TestPackage:DefineReturns("string");
-    function IHandler:Run() end
+    local IHandler = TestPackage:CreateInterface("IHandler", {
+        Run = {type = "function"; returns = "string"};
+    });
 
     local OnClickHandler = TestPackage:CreateClass("OnClickHandler", nil, IHandler);
 
@@ -319,7 +318,7 @@ local function NotImplementedInterfaceProperty_Test1() -- luacheck: ignore
     local DummyClass = TestPackage:CreateClass("DummyClass", nil, IDummyInterface);
 
     VerifyExpectedErrors(1, function()
-        DummyClass(); -- has no implementation for "DoSomething" so should fail!
+        DummyClass(); -- has not implemented property "MyNumber", should throw error!
     end);
 
     print("NotImplementedInterfaceProperty_Test1 Successful!");
@@ -337,11 +336,10 @@ local function NotImplementedInterfaceProperty_Test2() -- luacheck: ignore
     local DummyClass = TestPackage:CreateClass("DummyClass", nil, IDummyInterface);
 
     function DummyClass:__Construct()
-
     end
 
     VerifyExpectedErrors(1, function()
-        DummyClass(); -- has no implementation for "DoSomething" so should fail!
+        DummyClass(); -- has not implemented property "MyNumber", should throw error!
     end);
 
     print("NotImplementedInterfaceProperty_Test2 Successful!");
@@ -350,7 +348,7 @@ end
 local function NotImplementedInterfaceProperty_Test3() -- luacheck: ignore
     print("NotImplementedInterfaceProperty_Test3 Started");
 
-    local TestPackage = lib:CreatePackage("NotImplementedInterfaceProperty_Test2");
+    local TestPackage = lib:CreatePackage("NotImplementedInterfaceProperty_Test3");
 
     local IDummyInterface = TestPackage:CreateInterface("IDummyInterface", {
         MyNumber = "number";
@@ -359,12 +357,12 @@ local function NotImplementedInterfaceProperty_Test3() -- luacheck: ignore
     local DummyClass = TestPackage:CreateClass("DummyClass", nil, IDummyInterface);
 
     function DummyClass:__Construct()
-        self.MyNumber = 123
+        self.MyNumber = 123;
     end
 
-    local _ = DummyClass(); -- has no implementation for "DoSomething" so should fail!
+    local instance = DummyClass();
     VerifyExpectedErrors(1, function()
-        -- instance.MyNumber = "abc";
+        instance.MyNumber = "abc"; -- this is not a number, should throw error!
     end);
 
     print("NotImplementedInterfaceProperty_Test3 Successful!");
@@ -1211,46 +1209,95 @@ local function MemoryLeak_Test2() -- luacheck: ignore
     print("MemoryLeak_Test2 Successful!");
 end
 
+local function DefaultParams_Test1()
+    print("DefaultParams_Test1 Started");
+    local TestPackage = lib:CreatePackage("DefaultParams_Test1");
+    local TestClass = TestPackage:CreateClass("TestClass");
+
+    local defaultTable = {msg = "foobar"}
+
+    TestPackage:DefineParams("string=foo bar", "number=14", {"string", "foo bar 2"}, {"number", 20}, {"table", defaultTable})
+    function TestClass:AssertDefaults(_, arg1, arg2, arg3, arg4, arg5)
+        assert(arg1 == "foo bar", string.format("arg1 expected to be 'foo bar', got %s", arg1));
+        assert(arg2 == 14, string.format("arg2 expected to be 14, got %s", arg2));
+        assert(arg3 == "foo bar 2", string.format("arg3 expected to be 'foo bar 2', got %s", arg3));
+        assert(arg4 == 20, string.format("arg4 expected to be 20, got %s", arg4));
+        assert(type(arg5) == "table", string.format("arg5 expected to be of type table, got %s", type(arg5)));
+        assert(arg5.msg == "foobar", string.format("arg5.msg expected to be 'foobar', got %s", arg5.msg));
+    end
+
+    local testInstance = TestClass();
+    testInstance:AssertDefaults();
+
+    print("DefaultParams_Test1 Started");
+end
+
+local function DefaultParams_Test2()
+    print("DefaultParams_Test2 Started");
+    local TestPackage = lib:CreatePackage("DefaultParams_Test1");
+    local TestClass = TestPackage:CreateClass("TestClass");
+
+    local defaultTable = {msg = "foobar"}
+
+    TestPackage:DefineParams("string=foo bar", {"string", "foo bar 2"}, {"number", 20}, "string", {"table", defaultTable})
+    function TestClass:AssertDefaults(_, arg1, arg2, arg3, arg4, arg5)
+        assert(arg1 == "new message", string.format("arg1 expected to be 'new message', got %s", arg1));
+        assert(arg2 == "foo bar 2", string.format("arg2 expected to be 'foo bar 2', got %s", arg2));
+        assert(arg3 == 45, string.format("arg3 expected to be 45, got %s", arg3));
+        assert(arg4 == "hello", string.format("arg4 expected to be 'hello', got %s", arg4));
+        assert(type(arg5) == "table", string.format("arg5 expected to be of type table, got %s", type(arg5)));
+        assert(arg5.msg == "new message 2", string.format("arg5.msg expected to be 'new message 2', got %s", arg5.msg));
+    end
+
+    local testInstance = TestClass();
+
+    testInstance:AssertDefaults("new message", nil, 45, "hello", {msg = "new message 2"});
+
+    print("DefaultParams_Test2 Started");
+end
+
 ---------------------------------
 -- Run Tests:
 ---------------------------------
 
--- HelloWorld_Test1();
--- DefineParams_Test1();
--- DefineReturns_Test1();
--- DefineParams_Test2();
--- ImportPackage_Test1();
--- DuplicateClass_Test1();
--- UsingParent_Test1();
--- UsingParent_Test2();
--- UsingParent_Test3();
--- UsingParentWithVirtualFunction_Test4();
--- SubPackages_Test1();
--- Inheritance_Test1();
--- Inheritance_Test2();
--- Inheritance_Test3();
--- Inheritance_Test4();
--- Inheritance_Test5();
--- Inheritance_Test6();
--- Interfaces_Test1();
--- Interfaces_Test2();
--- Interfaces_Test3();
--- NotImplementedInterfaceFunction_Test1();
--- NotImplementedInterfaceProperty_Test1();
--- NotImplementedInterfaceProperty_Test2();
--- NotImplementedInterfaceProperty_Test3();
--- DefineProperty_Test1();
--- DefineProperty_Test2();
--- DefineProperty_Test3();
--- DefineProperty_Test4();
--- DefineProperty_Test5();
--- DefineProperty_Test6();
--- Get_DefinedProperty_After_Setting_Test1();
--- GenericClasses_Test1();
--- GenericClasses_Test2();
--- GenericClasses_Test3();
--- GenericClasses_Test4();
--- GetObjectType_In_Constructor_Test1();
--- UsingMultipleDefinitionsForOneArgument_Test1();
--- MemoryLeak_Test1();
--- MemoryLeak_Test2();
+HelloWorld_Test1();
+DefineParams_Test1();
+DefineReturns_Test1();
+DefineParams_Test2();
+ImportPackage_Test1();
+DuplicateClass_Test1();
+UsingParent_Test1();
+UsingParent_Test2();
+UsingParent_Test3();
+UsingParentWithVirtualFunction_Test4();
+SubPackages_Test1();
+Inheritance_Test1();
+Inheritance_Test2();
+Inheritance_Test3();
+Inheritance_Test4();
+Inheritance_Test5();
+Inheritance_Test6();
+Interfaces_Test1();
+Interfaces_Test2();
+Interfaces_Test3();
+NotImplementedInterfaceFunction_Test1();
+NotImplementedInterfaceProperty_Test1();
+NotImplementedInterfaceProperty_Test2();
+NotImplementedInterfaceProperty_Test3();
+DefineProperty_Test1();
+DefineProperty_Test2();
+DefineProperty_Test3();
+DefineProperty_Test4();
+DefineProperty_Test5();
+DefineProperty_Test6();
+Get_DefinedProperty_After_Setting_Test1();
+GenericClasses_Test1();
+GenericClasses_Test2();
+GenericClasses_Test3();
+GenericClasses_Test4();
+GetObjectType_In_Constructor_Test1();
+UsingMultipleDefinitionsForOneArgument_Test1();
+MemoryLeak_Test1();
+MemoryLeak_Test2();
+DefaultParams_Test1();
+DefaultParams_Test2();
