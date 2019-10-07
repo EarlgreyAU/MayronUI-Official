@@ -1,5 +1,7 @@
 -- luacheck: ignore self 143 631
 local Lib = _G.LibStub:GetLibrary("LibMayronObjects"); ---@type LibMayronObjects
+
+if (Lib:Import("Framework.System.Attributes.InCombatAttribute", true)) then return end
 local Attributes = Lib:CreatePackage("Attributes", "Framework.System");
 local InCombatLockdown, select, unpack = _G.InCombatLockdown, _G.select, _G.unpack;
 

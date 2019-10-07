@@ -2,7 +2,7 @@
 local addOnName = ...;
 
 ---@type LibMayronObjects
-local Lib = _G.LibStub:NewLibrary("LibMayronObjects", 2.8);
+local Lib = _G.LibStub:NewLibrary("LibMayronObjects", 3.01);
 
 if (not Lib) then
     return;
