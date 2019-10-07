@@ -446,24 +446,11 @@ function C_CastBar:SetTicks(data, numTicks)
     end
 end
 
-local defaultTbl = {cheese = true}
-
-Engine:DefineParams({"string", "hello there!"}, {"table", defaultTbl}, "string=fudge")
-function C_CastBar:Test(message, tbl, fudge)
-    print("message:", message);
-    print("tbl:", tbl.cheese);
-    print("fudge", fudge);
-end
-
 Engine:DefineReturns("boolean");
 ---@return boolean @Returns true if the cast bar has finished channeling or casting.
 function C_CastBar:IsFinished(data)
     local value = data.frame.statusbar:GetValue();
     local maxValue = select(2, data.frame.statusbar:GetMinMaxValues());
-
-    TEST_DEFAULTS = true;
-    self:Test();
-    TEST_DEFAULTS = nil;
 
     if (data.channelling) then
         return value <= 0; -- max value for channelling is reversed
