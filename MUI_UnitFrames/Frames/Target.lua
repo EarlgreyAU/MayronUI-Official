@@ -47,14 +47,14 @@ function C_TargetUnitFrame:ApplyStyle(data, frame)
     border:SetAllPoints(true);
     border:SetTexture(ASSETS.."UnitFrame_Overlay.tga");
 
-    local animator = C_TextureAnimator(data.frame, health);
-    animator:SetTgaFileSize(1024, 1024);
-    animator:SetGridDimensions(15, 4, 256, 64);
-    animator:SetFrameRate(24);
-    animator:Play(); -- causes a lot of lag
+    -- local animator = C_TextureAnimator(data.frame, health, "target");
+    -- animator:SetTgaFileSize(1024, 1024);
+    -- animator:SetGridDimensions(15, 4, 256, 64);
+    -- animator:SetFrameRate(24);
+    -- animator:Play(); -- causes a lot of lag
 
     tk:MakeMovable(data.frame);
 
     -- Register to oUF:
-    data.frame.Health = health;
+    -- data.frame.Health = health;
 end

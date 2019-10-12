@@ -56,9 +56,20 @@ function C_PlayerUnitFrame:ApplyStyle(data, frame)
     health:SetAllPoints(true);
     health:SetFrameLevel(10);
     health:SetStatusBarTexture(ASSETS.."Animated_StatusBar.tga");
-    tk:ApplyThemeColor(health:GetStatusBarTexture());
+    health:GetStatusBarTexture():SetAlpha(0);
 
-    local animator = C_TextureAnimator(data.frame, health:GetStatusBarTexture());
+    health.mask = health:CreateMaskTexture();
+    health.mask:SetTexture("Interface\\AddOns\\MUI_Core\\Assets\\Textures\\Widgets\\solid.tga", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
+    health.mask:SetPoint("TOPLEFT");
+    health.mask:SetPoint("BOTTOMLEFT");
+
+    health.fill = health:CreateTexture(nil, "ARTWORK");
+    health.fill:SetTexture(ASSETS.."Animated_StatusBar.tga");
+    health.fill:SetAllPoints(true);
+    health.fill:AddMaskTexture(health.mask);
+    tk:ApplyThemeColor(health.fill);
+
+    local animator = C_TextureAnimator(health, health.mask, health.fill);
     animator:SetTgaFileSize(1024, 1024);
     animator:SetGridDimensions(15, 4, 256, 64);
     animator:SetFrameRate(24);

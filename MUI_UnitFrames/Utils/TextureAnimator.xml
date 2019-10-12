@@ -1,0 +1,12 @@
+<Ui>
+	<Include file="TextureAnimator.lua"/>
+
+	<StatusBar name="MayronUI_AnimatedStatusBarTemplate" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="fill" file="Interface\AddOns\MUI_UnitFrames\Assets\Animated_StatusBar" />
+			</Layer>
+		</Layers>
+		<BarTexture parentKey="bar" />
+	</StatusBar>
+</Ui>

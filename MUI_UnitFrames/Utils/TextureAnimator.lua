@@ -9,6 +9,8 @@ local Utils = obj:CreatePackage("UnitFrameUtils", "MayronUI");
 ---@class TextureAnimator : Object
 local C_TextureAnimator = Utils:CreateClass("TextureAnimator");
 
+local UnitHealth, UnitHealthMax, unpack = _G.UnitHealth, _G.UnitHealthMax, _G.unpack;
+
 -- Local Functions --------------------
 local function GenerateCoords(data)
     local numFrames = data.rows * data.columns;
@@ -45,21 +47,23 @@ local function AnimateTexture(data, elapsed)
             data.index = 1;
         end
 
-        if (data.frame:IsVisible()) then
-            data.texture:SetTexCoord(
-                data.coords[data.index][1], data.coords[data.index][2],
-                data.coords[data.index][3], data.coords[data.index][4]);
+        if (data.statusBar:IsVisible()) then
+            local left, right, top, bottom = unpack(data.coords[data.index]); -- 0 to 1
+            data.fill:SetTexCoord(left, right, top, bottom);
+
+            local width = data.statusBar:GetStatusBarTexture():GetWidth();
+            data.mask:SetWidth(width);
         end
     end
 end
 
 -- C_TextureAnimator --------------------
 
-Utils:DefineParams("Frame", "Texture");
-function C_TextureAnimator:__Construct(data, frame, texture)
-    data.frame = frame;
-    data.texture = texture;
-    data.texturePath = texture:GetTexture();
+Utils:DefineParams("StatusBar", "MaskTexture", "Texture");
+function C_TextureAnimator:__Construct(data, statusBar, mask, fill)
+    data.statusBar = statusBar;
+    data.mask = mask;
+    data.fill = fill;
 end
 
 Utils:DefineParams("number", "number");
@@ -87,12 +91,12 @@ function C_TextureAnimator:Play(data)
     obj:Assert(data.frameRate, "Framerate not set.");
     GenerateCoords(data);
 
-    data.frame:SetScript("OnUpdate", function(self, elapsed)
+    data.statusBar:SetScript("OnUpdate", function(self, elapsed)
         AnimateTexture(data, elapsed);
     end);
 end
 
 function C_TextureAnimator:Stop(data)
     data.coords = nil;
-    data.frame:SetScript("OnUpdate", nil);
+    data.statusBar:SetScript("OnUpdate", nil);
 end
