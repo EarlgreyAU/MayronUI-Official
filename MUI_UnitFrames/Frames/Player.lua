@@ -33,7 +33,6 @@ end
 
 function C_PlayerUnitFrame:ApplyStyle(data, frame)
     data.frame = frame;
-    -- Blizzard scripts:
     data.frame:SetScript("OnEnter", _G.UnitFrame_OnEnter);
     data.frame:SetScript("OnLeave", _G.UnitFrame_OnLeave);
     data.frame:SetFrameLevel(20);
@@ -55,21 +54,20 @@ function C_PlayerUnitFrame:ApplyStyle(data, frame)
     local health = _G.CreateFrame("StatusBar", nil, data.frame);
     health:SetAllPoints(true);
     health:SetFrameLevel(10);
-    health:SetStatusBarTexture(ASSETS.."Animated_StatusBar.tga");
-    health:GetStatusBarTexture():SetAlpha(0);
+    health.Smooth = true;
 
-    health.mask = health:CreateMaskTexture();
-    health.mask:SetTexture("Interface\\AddOns\\MUI_Core\\Assets\\Textures\\Widgets\\solid.tga", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
-    health.mask:SetPoint("TOPLEFT");
-    health.mask:SetPoint("BOTTOMLEFT");
+    local mask = health:CreateMaskTexture();
+    mask:SetTexture(tk:GetAssetFilePath("Textures\\Widgets\\solid.tga"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
+    mask:SetAllPoints(true);
+    health:SetStatusBarTexture(mask);
 
     health.fill = health:CreateTexture(nil, "ARTWORK");
     health.fill:SetTexture(ASSETS.."Animated_StatusBar.tga");
     health.fill:SetAllPoints(true);
-    health.fill:AddMaskTexture(health.mask);
+    health.fill:AddMaskTexture(mask);
     tk:ApplyThemeColor(health.fill);
 
-    local animator = C_TextureAnimator(health, health.mask, health.fill);
+    local animator = C_TextureAnimator(health, health.fill);
     animator:SetTgaFileSize(1024, 1024);
     animator:SetGridDimensions(15, 4, 256, 64);
     animator:SetFrameRate(24);

@@ -1,5 +1,6 @@
 -- luacheck: ignore self 143
 local _, _, _, _, obj = _G.MayronUI:GetCoreComponents();
+local unpack = _G.unpack;
 
 -- Objects -----------------------------
 
@@ -8,8 +9,6 @@ local Utils = obj:CreatePackage("UnitFrameUtils", "MayronUI");
 
 ---@class TextureAnimator : Object
 local C_TextureAnimator = Utils:CreateClass("TextureAnimator");
-
-local UnitHealth, UnitHealthMax, unpack = _G.UnitHealth, _G.UnitHealthMax, _G.unpack;
 
 -- Local Functions --------------------
 local function GenerateCoords(data)
@@ -50,19 +49,15 @@ local function AnimateTexture(data, elapsed)
         if (data.statusBar:IsVisible()) then
             local left, right, top, bottom = unpack(data.coords[data.index]); -- 0 to 1
             data.fill:SetTexCoord(left, right, top, bottom);
-
-            local width = data.statusBar:GetStatusBarTexture():GetWidth();
-            data.mask:SetWidth(width);
         end
     end
 end
 
 -- C_TextureAnimator --------------------
 
-Utils:DefineParams("StatusBar", "MaskTexture", "Texture");
-function C_TextureAnimator:__Construct(data, statusBar, mask, fill)
+Utils:DefineParams("StatusBar", "Texture");
+function C_TextureAnimator:__Construct(data, statusBar, fill)
     data.statusBar = statusBar;
-    data.mask = mask;
     data.fill = fill;
 end
 
