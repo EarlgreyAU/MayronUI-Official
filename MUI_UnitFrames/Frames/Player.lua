@@ -31,50 +31,71 @@ function C_PlayerUnitFrame:__Construct(_, unitID, settings)
     self:Super(unitID, settings);
 end
 
+local function CreateBar(parentFrame, backgroundTexture, fillTexture)
+    local bar = _G.CreateFrame("StatusBar", nil, parentFrame);
+
+    bar.Smooth = true;
+
+    -- health Bar Textures:
+    bar.background = bar:CreateTexture(nil, "BACKGROUND");
+    bar.background:SetAllPoints(true);
+    bar.background:SetTexture(backgroundTexture);
+
+    local mask = bar:CreateMaskTexture();
+    mask:SetAllPoints(true);
+    mask:SetTexture(tk:GetAssetFilePath("Textures\\Widgets\\solid.tga"),
+        "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
+
+    bar:SetStatusBarTexture(mask);
+
+    bar.fill = bar:CreateTexture(nil, "ARTWORK");
+    bar.fill:SetAllPoints(true);
+    bar.fill:SetTexture(fillTexture);
+    bar.fill:AddMaskTexture(mask);
+
+    return bar;
+end
+
 function C_PlayerUnitFrame:ApplyStyle(data, frame)
     data.frame = frame;
     data.frame:SetScript("OnEnter", _G.UnitFrame_OnEnter);
     data.frame:SetScript("OnLeave", _G.UnitFrame_OnLeave);
-    data.frame:SetFrameLevel(20);
 
-    local power = _G.CreateFrame("StatusBar", nil, data.frame);
-    power:SetPoint("TOPLEFT", data.frame, "TOPLEFT", 8, -2)
-    power:SetSize(224, 20);
-    power:SetFrameLevel(15);
-    power:SetStatusBarTexture(tk.Constants.LSM:Fetch("statusbar", "MUI_StatusBar"));
+    -- Health Bar:
+    local healthBar = CreateBar(data.frame,
+        ASSETS.."UnitFrame_Background.tga",
+        ASSETS.."Animated_StatusBar.tga");
 
-    power.frequentUpdates = true;
-    power.colorPower = true;
-    power.Smooth = true;
+    healthBar:SetAllPoints(true);
+    tk:ApplyThemeColor(healthBar.fill);
 
-    local border = data.frame:CreateTexture(nil, "OVERLAY");
-    border:SetAllPoints(true);
-    border:SetTexture(ASSETS.."UnitFrame_Overlay.tga");
+    -- Power Bar:
+    local powerBar = CreateBar(healthBar,
+        ASSETS.."UnitFrame_PowerBarBackground.tga",
+        tk.Constants.LSM:Fetch("statusbar", "MUI_StatusBar"));
 
-    local health = _G.CreateFrame("StatusBar", nil, data.frame);
-    health:SetAllPoints(true);
-    health:SetFrameLevel(10);
-    health.Smooth = true;
+    powerBar:SetPoint("TOPLEFT", 8, -2);
+    powerBar:SetSize(224, 20);
+    -- doesn't work
+    -- powerBar.fill:SetMask(ASSETS.."UnitFrame_PowerBarMask.tga");
+    powerBar.frequentUpdates = true;
+    powerBar.colorPower = true;
 
-    local mask = health:CreateMaskTexture();
-    mask:SetTexture(tk:GetAssetFilePath("Textures\\Widgets\\solid.tga"), "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE", "NEAREST");
-    mask:SetAllPoints(true);
-    health:SetStatusBarTexture(mask);
+    -- Overlay Texture:
+    local overlay = powerBar:CreateTexture(nil, "OVERLAY");
+    overlay:SetPoint("TOPLEFT", data.frame, "TOPLEFT");
+    overlay:SetPoint("BOTTOMRIGHT", data.frame, "BOTTOMRIGHT");
+    overlay:SetTexture(ASSETS.."UnitFrame_Overlay.tga");
 
-    health.fill = health:CreateTexture(nil, "ARTWORK");
-    health.fill:SetTexture(ASSETS.."Animated_StatusBar.tga");
-    health.fill:SetAllPoints(true);
-    health.fill:AddMaskTexture(mask);
-    tk:ApplyThemeColor(health.fill);
-
-    local animator = C_TextureAnimator(health, health.fill);
+    -- Animator:
+    local animator = C_TextureAnimator(healthBar, healthBar.fill);
     animator:SetTgaFileSize(1024, 1024);
     animator:SetGridDimensions(15, 4, 256, 64);
     animator:SetFrameRate(24);
     animator:Play();
 
     -- Register to oUF:
-    data.frame.Health = health;
-    data.frame.Power = power;
+    data.frame.Health = healthBar;
+    data.frame.Power = powerBar;
     -- data.frame.Power.PostUpdate = PostUpdatePower;
 end
