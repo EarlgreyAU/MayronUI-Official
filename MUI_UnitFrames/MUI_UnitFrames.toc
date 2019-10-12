@@ -15,7 +15,7 @@ Libs\oUF_Plugins\oUF_FloatingCombatFeedback.lua
 Libs\oUF_Plugins\oUF_EnergyTicker.lua
 
 ## Utils:
-Utils\TextureAnimator.xml
+Utils\TextureAnimator.lua
 
 ## Frames:
 Frames\BaseUnitFrame.lua
