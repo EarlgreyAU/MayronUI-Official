@@ -1,7 +1,7 @@
 -- luacheck: ignore MayronUI self 143 631
 
 ---@type LibMayronDB
-local Lib = _G.LibStub:NewLibrary("LibMayronDB", 2.3);
+local Lib = _G.LibStub:NewLibrary("LibMayronDB", 2.8);
 
 ---@type LibMayronObjects
 local obj = _G.LibStub:GetLibrary("LibMayronObjects");
@@ -23,7 +23,7 @@ local Helper = Framework:CreateClass("Helper");
 Observer.Static:AddFriendClass("Helper");
 Observer.Static:AddFriendClass("Database");
 
-local select, tonumber, strsplit = _G.select, _G.tonumber, _G.strsplit;
+local tonumber, strsplit = _G.tonumber, _G.strsplit;
 local GetLastTableKeyPairs, GetNextPath, IsEqual, GetDatabasePathInfo;
 
 local OnAddOnLoadedListener = _G.CreateFrame("Frame");
@@ -206,10 +206,10 @@ Framework:DefineParams("function");
 ---(i.e. only changed by the user using db:SetProfile() or db:RemoveProfile(currentProfile)).
 ---@param callback function @The profile changing callback function
 function Database:OnProfileChange(data, callback)
-    local profileChangedCallback = data.callbacks["OnProfileChange"] or obj:PopTable();
-    data.callbacks["OnProfileChange"] = profileChangedCallback;
+    local profileChangedCallbacks = data.callbacks["OnProfileChange"] or obj:PopTable();
+    data.callbacks["OnProfileChange"] = profileChangedCallbacks;
 
-    table.insert(profileChangedCallback, callback);
+    table.insert(profileChangedCallbacks, callback);
 end
 
 ---Starts the database. Should only be used when the saved variable is accessible (after the ADDON_LOADED event has fired).
@@ -560,9 +560,8 @@ function Database:RenameProfile(data, oldProfileName, newProfileName)
 
             if (profileKey == currentProfileKey) then
                 if (data.callbacks["OnProfileChange"]) then
-                    for _, value in ipairs(data.callbacks["OnProfileChange"]) do
-                        local callback = value[1];
-                        callback(newProfileName, select(2, _G.unpack(value)));
+                    for _, callback in ipairs(data.callbacks["OnProfileChange"]) do
+                        callback(self, newProfileName, oldProfileName);
                     end
                 end
             end
@@ -615,10 +614,10 @@ end
 
 Framework:DefineParams("Observer", "string");
 Framework:DefineReturns("boolean");
----Removes the appended history.
+---Removes the appended history (i.e. the key registryKey and appended data).
 ---@param rootTable Observer @The root database table (observer) to append the value to relative to the path address provided.
----@param path string @The path address to specify where the value should be appended to.
----@return boolean @Returns whether the value was successfully added.
+---@param path string @The path address to specify where the value should be removed from.
+---@return boolean @Returns whether the value was successfully removed.
 function Database:RemoveAppended(data, rootTable, path)
     local tableType = data.helper:GetDatabaseRootTableName(rootTable);
 
@@ -1135,7 +1134,7 @@ do
         obj:PushTable(self);
     end
 
-    Framework:DefineReturns("table", "?table");
+    Framework:DefineReturns("table");
     ---Creates an immutable table containing all values from the underlining saved variables table,
     ---parent table, and defaults table. Changing this table will not affect the saved variables table!
     ---@param reusableTable table @Can use an already existing table instead of creating a new one. This table will be emptied before being used.
