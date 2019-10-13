@@ -2,8 +2,9 @@ local _, namespace = ...;
 
 -- luacheck: ignore self 143
 local _G, MayronUI = _G, _G.MayronUI;
-local tk, _, _, _, obj = MayronUI:GetCoreComponents();
+local _, _, _, _, obj = MayronUI:GetCoreComponents();
 local oUF = namespace.oUF;
+local UIParent, unpack = _G.UIParent, _G.unpack;
 
 -- Objects -----------------------------
 
@@ -21,8 +22,8 @@ end
 
 function BaseUnitFrame:SetEnabled(data)
     local frame = oUF:Spawn(data.unitName:lower(), "MUI_"..data.unitName.."Frame");
-    frame:SetParent(_G.UIParent);
+    frame:SetParent(UIParent);
     frame:SetPoint(unpack(data.settings.position));
-    frame:SetSize(277, 63);
+    frame:SetSize(277, 70);
 end
 
