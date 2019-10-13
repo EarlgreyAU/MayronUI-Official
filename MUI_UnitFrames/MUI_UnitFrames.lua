@@ -120,3 +120,28 @@ function C_UnitFramesModule:OnInitialize(data)
     self:RegisterUpdateFunctions(db.profile, {});
 	self:SetEnabled(true);
 end
+
+-- Colors: ----------------
+
+oUF.colors.disconnected = {
+	0.1, 0.1, 0.1
+}
+
+oUF.colors.reaction = {
+	[1] = { 0.87, 0.37, 0.37 }, -- Hated
+	[2] = { 0.87, 0.37, 0.37 }, -- Hostile
+	[3] = { 0.87, 0.37, 0.37 }, -- Unfriendly
+	[4] = { 0.85, 0.77, 0.36 }, -- Neutral
+	[5] = { 0.29, 0.67, 0.30 }, -- Friendly
+	[6] = { 0.29, 0.67, 0.30 }, -- Honored
+	[7] = { 0.29, 0.67, 0.30 }, -- Revered
+	[8] = { 0.29, 0.67, 0.30 }, -- Exalted
+}
+
+oUF.colors.power = {
+	["MANA"]              = {0.31, 0.45, 0.63},
+	["RAGE"]              = {0.69, 0.31, 0.31},
+	["ENERGY"]            = {0.65, 0.63, 0.35},
+	["FOCUS"]             = {0.71, 0.43, 0.27},
+	["AMMOSLOT"]          = {0.80, 0.60, 0.00},
+}
