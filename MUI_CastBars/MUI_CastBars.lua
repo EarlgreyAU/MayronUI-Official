@@ -4,11 +4,31 @@ local _, namespace = ...;
 local _G, MayronUI = _G, _G.MayronUI;
 local tk, db, _, _, obj = MayronUI:GetCoreComponents();
 
-local GetSpellInfo, IsAddOnLoaded, UnitName = _G.GetSpellInfo, _G.IsAddOnLoaded, _G.UnitName;
-local ChannelInfo, CastingInfo, CreateFrame = _G.ChannelInfo, _G.CastingInfo, _G.CreateFrame;
-local UIFrameFadeIn, UIFrameFadeOut, select, date, math, tonumber, string, table, ipairs =
-    _G.UIFrameFadeIn, _G.UIFrameFadeOut, _G.select, _G.date, _G.math, _G.tonumber, _G.string, _G.table, _G.ipairs;
-local GetNetStats = _G.GetNetStats;
+local GetSpellInfo, IsAddOnLoaded, UnitName, UnitExists = _G.GetSpellInfo, _G.IsAddOnLoaded, _G.UnitName, _G.UnitExists;
+local UnitChannelInfo, UnitCastingInfo, CreateFrame = _G.UnitChannelInfo, _G.UnitCastingInfo, _G.CreateFrame;
+local CastingInfo, ChannelInfo = _G.CastingInfo, _G.ChannelInfo;
+local UIFrameFadeIn, UIFrameFadeOut, select, date, math, tonumber, string, table, ipairs, pairs =
+_G.UIFrameFadeIn, _G.UIFrameFadeOut, _G.select, _G.date, _G.math, _G.tonumber, _G.string, _G.table, _G.ipairs, _G.pairs;
+local GetNetStats, GetTime, GetMirrorTimerInfo = _G.GetNetStats, _G.GetTime, _G.GetMirrorTimerInfo;
+
+local isClassic = _G.WOW_PROJECT_ID == _G.WOW_PROJECT_CLASSIC;
+
+if (isClassic) then
+	UnitCastingInfo = function(unit)
+		if (unit == "player") then
+			return CastingInfo();
+		else
+			return;
+		end
+	end
+	UnitChannelInfo = function(unit)
+		if (unit == "player") then
+			return ChannelInfo();
+		else
+			return;
+		end
+	end
+end
 
 namespace.castBarData = obj:PopTable();
 
@@ -57,9 +77,10 @@ db:AddToDefaults("profile.castBars", {
         anchorToSUF   = true;
         showLatency   = true;
     },
-    -- Target = {
-    --     anchorToSUF = true;
-    -- },
+    Target = {
+        anchorToSUF = true;
+    },
+    Focus = {};
     Mirror = {
         position = {"TOP", "UIParent", "TOP", 0,  -200};
     };
@@ -128,7 +149,7 @@ function Events:MIRROR_TIMER_START(_, castBarData, ...)
     castBarData.frame.statusbar:SetMinMaxValues(0, (maxValue / 1000));
     castBarData.frame.statusbar:SetValue((value / 1000));
     castBarData.paused = pause;
-    castBarData.startTime = _G.GetTime();
+    castBarData.startTime = GetTime();
     castBarData.frame.name:SetText(label);
 
     local c = castBarData.appearance.colors.normal;
@@ -172,8 +193,8 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:PLAYER_TARGET_CHANGED(castBar, castBarData)
-	if (_G.UnitExists(castBarData.unitID) and select(1, CastingInfo())) then
-        if (_G.UnitName(castBarData.unitID) == castBarData.unitName) then return end
+	if (UnitExists(castBarData.unitID) and select(1, UnitCastingInfo(castBarData.unitID))) then
+        if (UnitName(castBarData.unitID) == castBarData.unitName) then return end
 
 		castBar:StopCasting();
         castBar:StartCasting(false); -- for casting only (not channelling)
@@ -188,7 +209,7 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:UNIT_SPELLCAST_DELAYED(castBar, castBarData)
-    local endTime = select(5, CastingInfo());
+    local endTime = select(5, UnitCastingInfo(castBarData.unitID));
 
 	if (not endTime or not castBarData.startTime) then
 		self:UNIT_SPELLCAST_INTERRUPTED(castBar, castBarData);
@@ -203,7 +224,7 @@ end
 ---@param castBarData table
 ---@param unitID string
 function Events:UNIT_SPELLCAST_START(castBar, castBarData, unitID)
-	if (unitID ~= castBarData.unitID) then return end
+    if (unitID ~= castBarData.unitID) then return end
 	castBar:StartCasting(false);
 end
 
@@ -230,7 +251,7 @@ end
 ---@param castBar CastBar
 ---@param castBarData table
 function Events:UNIT_SPELLCAST_CHANNEL_UPDATE(castBar, castBarData)
-    local endTime = select(5, ChannelInfo());
+    local endTime = select(5, UnitChannelInfo(castBarData.unitID));
 
     if (not endTime or not castBarData.startTime) then
         castBar:StopCasting();
@@ -271,15 +292,19 @@ local function CastBarFrame_OnUpdate(self, elapsed)
 end
 
 local function CastBarFrame_OnEvent(self, eventName, ...)
+    if (eventName == "PLAYER_FOCUS_CHANGED") then
+        eventName = "PLAYER_TARGET_CHANGED";
+    end
+
     Events[eventName](Events, self.castBar, namespace.castBarData[self.unitID] , ...);
 end
 
 do
     local function CreateBarFrame(unitID, settings, globalName)
-        local bar = _G.CreateFrame("Frame", globalName, _G.UIParent);
+        local bar = CreateFrame("Frame", globalName, _G.UIParent);
         bar:SetAlpha(0);
 
-        bar.statusbar = _G.CreateFrame("StatusBar", nil, bar);
+        bar.statusbar = CreateFrame("StatusBar", nil, bar);
         bar.statusbar:SetValue(0);
 
         if (unitID == "player" and settings.showLatency) then
@@ -306,7 +331,7 @@ do
         bar.duration:SetPoint("RIGHT", -4, 0);
         bar.duration:SetJustifyH("RIGHT");
 
-        bar.bg = _G.CreateFrame("Frame", nil, bar);
+        bar.bg = CreateFrame("Frame", nil, bar);
         bar.bg:SetPoint("TOPLEFT", bar, "TOPLEFT", -1, 1);
         bar.bg:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 1, -1);
         bar.bg:SetFrameLevel(5);
@@ -342,8 +367,15 @@ do
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", data.unitID);
                 bar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", data.unitID);
 
+                if (not isClassic) then
+                    bar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", data.unitID);
+                    bar:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", data.unitID);
+                end
+
                 if (data.unitID == "target") then
                     bar:RegisterEvent("PLAYER_TARGET_CHANGED");
+                elseif (not isClassic and data.unitID == "focus") then
+                    bar:RegisterEvent("PLAYER_FOCUS_CHANGED");
                 end
             end
 
@@ -376,7 +408,7 @@ function C_CastBar:Update(data)
     if (data.unitID == "mirror") then
         if (not data.paused or data.paused == 0) then
             for i = 1, _G.MIRRORTIMER_NUMTIMERS do
-                local _, _, _, _, _, label = _G.GetMirrorTimerInfo(i);
+                local _, _, _, _, _, label = GetMirrorTimerInfo(i);
 
                 if (label == data.frame.name:GetText()) then
                     local value = _G.MirrorTimer1StatusBar:GetValue();
@@ -394,7 +426,7 @@ function C_CastBar:Update(data)
         end
     else
         if (data.startTime and not self:IsFinished()) then
-            local difference = _G.GetTime() - data.startTime;
+            local difference = GetTime() - data.startTime;
 
             if (data.channelling or data.unitID == "mirror") then
                 data.frame.statusbar:SetValue(data.totalTime - difference);
@@ -503,8 +535,8 @@ Engine:DefineParams("boolean");
 ---Start casting or channelling a spell/ability.
 ---@param channelling boolean @If true, the casting type is set to "channelling" to reverse the bar direction.
 function C_CastBar:StartCasting(data, channelling)
-    local func = channelling and ChannelInfo or CastingInfo;
-    local name, _, texture, startTime, endTime, _, _, notInterruptible = func();
+    local func = channelling and UnitChannelInfo or UnitCastingInfo;
+    local name, _, texture, startTime, endTime, _, _, notInterruptible = func(data.unitID);
 
 	if (not startTime) then
 		if (data.frame:GetAlpha() > 0 and not data.fadingOut) then
@@ -614,19 +646,24 @@ function C_CastBarsModule:OnInitialize(data)
         r = r, g = g, b = b, a = 0.7
     });
 
-    -- TODO: Target should be here
-    for _, barName in obj:IterateArgs("Player", "Mirror") do
+    local barNames = obj:PopTable("Player", "Target", "Mirror");
+    local updateFirst = obj:PopTable("Player.enabled", "Target.enabled", "Mirror.enabled");
+
+    if (not isClassic) then
+        barNames[#barNames + 1] = "Focus";
+        updateFirst[#updateFirst + 1] = "Focus.enabled";
+    end
+
+    for _, barName in ipairs(barNames) do
         local sv = db.profile.castBars[barName]; ---@type Observer
         sv:SetParent(db.profile.castBars.__templateCastBar);
     end
 
+    obj:PushTable(barNames);
+
     local options = {
         onExecuteAll = {
-            first = {
-                "Player.enabled";
-                "Target.enabled";
-                "Mirror.enabled";
-            };
+            first = updateFirst;
             dependencies = {
                 ["colors.border"] = "appearance.border";
             };
@@ -694,7 +731,7 @@ function C_CastBarsModule:OnInitialize(data)
             texture = function(value)
                 local castBarData;
 
-                for _, castBar in _G.pairs(data.bars) do
+                for _, castBar in pairs(data.bars) do
                     castBarData = data:GetFriendData(castBar);
                     castBarData.frame.statusbar:SetStatusBarTexture(tk.Constants.LSM:Fetch("statusbar", value));
                 end
@@ -704,7 +741,7 @@ function C_CastBarsModule:OnInitialize(data)
                 local castBarData;
                 local color = data.settings.appearance.colors.border;
 
-                for _, castBar in _G.pairs(data.bars) do
+                for _, castBar in pairs(data.bars) do
                     castBarData = data:GetFriendData(castBar);
                     castBarData.backdrop.edgeFile = tk.Constants.LSM:Fetch("border", value);
                     castBarData.frame:SetBackdrop(castBarData.backdrop);
@@ -716,7 +753,7 @@ function C_CastBarsModule:OnInitialize(data)
                 local castBarData;
                 local color = data.settings.appearance.colors.border;
 
-                for _, castBar in _G.pairs(data.bars) do
+                for _, castBar in pairs(data.bars) do
                     castBarData = data:GetFriendData(castBar);
                     castBarData.backdrop.edgeSize = value;
                     castBarData.frame:SetBackdrop(castBarData.backdrop);
@@ -727,7 +764,7 @@ function C_CastBarsModule:OnInitialize(data)
             inset = function(value)
                 local castBarData;
 
-                for _, castBar in _G.pairs(data.bars) do
+                for _, castBar in pairs(data.bars) do
                     castBarData = data:GetFriendData(castBar);
                     castBarData.frame.statusbar:ClearAllPoints();
                     castBarData.frame.statusbar:SetPoint("TOPLEFT", value, -value);
@@ -739,7 +776,7 @@ function C_CastBarsModule:OnInitialize(data)
                 background = function(value)
                     local castBarData;
 
-                    for _, castBar in _G.pairs(data.bars) do
+                    for _, castBar in pairs(data.bars) do
                         castBarData = data:GetFriendData(castBar);
 
                         if (not castBarData.background) then
@@ -754,7 +791,7 @@ function C_CastBarsModule:OnInitialize(data)
                 border = function(value)
                     local castBarData;
 
-                    for _, castBar in _G.pairs(data.bars) do
+                    for _, castBar in pairs(data.bars) do
                         castBarData = data:GetFriendData(castBar);
                         castBarData.frame:SetBackdropBorderColor(value.r, value.g, value.b, value.a);
 
@@ -767,7 +804,7 @@ function C_CastBarsModule:OnInitialize(data)
                 normal = function(value)
                     local castBarData;
 
-                    for _, castBar in _G.pairs(data.bars) do
+                    for _, castBar in pairs(data.bars) do
                         castBarData = data:GetFriendData(castBar);
                         castBarData.frame.statusbar:SetStatusBarColor(value.r, value.g, value.b, value.a);
                     end
