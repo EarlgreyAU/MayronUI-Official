@@ -26,7 +26,7 @@ db:AddToDefaults("profile.unitPanels", {
     };
     controlSUF = true;
     unitWidth = 325;
-    unitHeight = 82;
+    unitHeight = 75;
     isSymmetric = false;
     alpha = 0.8;
     unitNames = {
