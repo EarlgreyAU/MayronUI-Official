@@ -73,7 +73,8 @@ function Lib:IterateDatabases()
     local databases = obj:PopTable();
 
     for name, database in pairs(OnAddOnLoadedListener.RegisteredDatabases) do
-        table.insert(databases, obj:PopTable(name, database));
+        local value = obj:PopTable(name, database);
+        table.insert(databases, value);
     end
 
     return function()

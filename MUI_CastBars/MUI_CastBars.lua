@@ -57,9 +57,6 @@ db:AddToDefaults("profile.castBars", {
         anchorToSUF   = true;
         showLatency   = true;
     },
-    -- Target = {
-    --     anchorToSUF = true;
-    -- },
     Mirror = {
         position = {"TOP", "UIParent", "TOP", 0,  -200};
     };

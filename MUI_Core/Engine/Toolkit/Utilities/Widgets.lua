@@ -1,12 +1,13 @@
 -- luacheck: ignore MayronUI self 143 631
 local _, namespace = ...;
 
-local obj = namespace.components.Objects;
+local obj = namespace.components.Objects; ---@type LibMayronObjects
 local tk = namespace.components.Toolkit; ---@type Toolkit
 
 local _G = _G;
 local TOOLTIP_ANCHOR_POINT = "ANCHOR_TOP";
-local GameTooltip, ipairs, CreateFrame, UIParent, select = _G.GameTooltip, _G.ipairs, _G.CreateFrame, _G.UIParent, _G.select;
+local GameTooltip, ipairs, pairs, CreateFrame, UIParent, select =
+    _G.GameTooltip, _G.ipairs, _G.pairs, _G.CreateFrame, _G.UIParent, _G.select;
 
 function tk:SetFontSize(fontString, size)
     local fontPath, _, flags = fontString:GetFont();
@@ -240,10 +241,11 @@ end
 function tk:ApplyThemeColor(...)
     local alpha = (select(1, ...));
 
-    if (obj:IsNumber(alpha)) then
-        tk.Constants.AddOnStyle:ApplyColor(nil, ...);
-    else
+    -- first argument is "colorName"
+    if (not (obj:IsNumber(alpha) and alpha)) then
         tk.Constants.AddOnStyle:ApplyColor(nil, 1, ...);
+    else
+        tk.Constants.AddOnStyle:ApplyColor(nil, ...);
     end
 end
 

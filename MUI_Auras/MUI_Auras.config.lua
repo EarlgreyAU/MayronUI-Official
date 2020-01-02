@@ -176,7 +176,7 @@ function C_AurasModule:GetConfigTable(data)
                                         name = "Icon Size";
                                         appendDbPath = "icons.auraSize";
                                         min = 20;
-                                        max = 80;
+                                        max = 100;
                                     };
                                     {   name = "Column Spacing",
                                         type = "slider",

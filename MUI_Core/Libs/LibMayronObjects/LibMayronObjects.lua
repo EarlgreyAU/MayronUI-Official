@@ -218,7 +218,7 @@ do
     end
 
     ---@param wrapper table @A table to be unpacked and pushed to the stack to be emptied later.
-    ---@param pushTable boolean @If true, the table will not be pushed
+    ---@param doNotPushTable boolean @If true, the table will not be pushed
     function Lib:UnpackTable(wrapper, doNotPushTable)
         if (not self:IsTable(wrapper)) then
             return;

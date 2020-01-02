@@ -49,27 +49,7 @@ Private.Races = { -- lower values = lower model
             hoverValue = -0.4,
         }
     },
-    KulTiran = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.3,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.4,
-        }
-    },
     Dwarf = {
-        Male = {
-            value = -0.3,
-            hoverValue = -0.2,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.3,
-        }
-    },
-    DarkIronDwarf = {
         Male = {
             value = -0.3,
             hoverValue = -0.2,
@@ -89,16 +69,6 @@ Private.Races = { -- lower values = lower model
             hoverValue = -0.6,
         }
     },
-    VoidElf = {
-        Male = {
-            value = -0.5,
-            hoverValue = -0.6,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.6,
-        }
-    },
     Gnome = {
         Male = {
             value = -0.3,
@@ -109,57 +79,7 @@ Private.Races = { -- lower values = lower model
             hoverValue = -0.3,
         }
     },
-    Draenei = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.7,
-        },
-        Female = {
-            value = -0.5,
-            hoverValue = -0.7,
-        }
-    },
-    LightforgedDraenei = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.7,
-        },
-        Female = {
-            value = -0.5,
-            hoverValue = -0.7,
-        }
-    },
-    Worgen = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.4,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.4,
-        }
-    },
-    Pandaren = {
-        Male = {
-            value = -0.6,
-            hoverValue = -0.9,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.3,
-        }
-    },
     Orc = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.4,
-        },
-        Female = {
-            value = -0.5,
-            hoverValue = -0.4,
-        }
-    },
-    MagharOrc = {
         Male = {
             value = -0.4,
             hoverValue = -0.4,
@@ -189,26 +109,6 @@ Private.Races = { -- lower values = lower model
             hoverValue = -0.4,
         }
     },
-    HighmountainTauren = {
-        Male = {
-            value = -0.3,
-            hoverValue = -0.4,
-        },
-        Female = {
-            value = -0.6,
-            hoverValue = -0.4,
-        }
-    },
-    Nightborne = {
-        Male = {
-            value = -0.5,
-            hoverValue = -0.6,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.6,
-        }
-    },
     Troll = {
         Male = {
             value = -0.4,
@@ -218,37 +118,7 @@ Private.Races = { -- lower values = lower model
             value = -0.3,
             hoverValue = -0.5,
         }
-    },
-    ZandalariTroll = {
-        Male = {
-            value = -0.4,
-            hoverValue = -0.2,
-        },
-        Female = {
-            value = -0.3,
-            hoverValue = -0.5,
-        }
-    },
-    BloodElf = {
-        Male = {
-            value = -0.5,
-            hoverValue = -0.8,
-        },
-        Female = {
-            value = -0.4,
-            hoverValue = -0.9,
-        }
-    },
-    Goblin = {
-        Male = {
-            value = -0.3,
-            hoverValue = -0.3,
-        },
-        Female = {
-            value = -0.3,
-            hoverValue = -0.3,
-        }
-    },
+    }
 };
 
 ----------------------------
